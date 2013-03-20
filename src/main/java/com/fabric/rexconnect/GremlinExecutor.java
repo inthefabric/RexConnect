@@ -1,5 +1,7 @@
 package com.fabric.rexconnect;
 
+import java.util.Map;
+
 import org.apache.commons.configuration.BaseConfiguration;
 import org.msgpack.template.Templates;
 
@@ -21,8 +23,9 @@ public class GremlinExecutor {
     }
 
 	/*--------------------------------------------------------------------------------------------*/
-	public String execute(String pScript) throws Exception {
-		Object raw = vClient.execute(vInitGraph+pScript, Templates.TValue);
+	public String execute(String pScript, Map<String, Object> pParamMap) throws Exception {
+		//System.out.println("Gremlin: "+(vInitGraph+pScript)+" // "+pParamMap);
+		Object raw = vClient.execute(vInitGraph+pScript, pParamMap, Templates.TValue);
 		//System.out.println(" * Raw: "+raw);
 		return raw.toString();
 	}

@@ -2,7 +2,10 @@ package com.fabric.rexconnect;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.quickserver.net.server.ClientCommandHandler;
 import org.quickserver.net.server.ClientHandler;
 
@@ -26,16 +29,22 @@ public class CommandHandler implements ClientCommandHandler {
 		String result = null;
 		
 		try {
-			int i = (pCommand == null ? -1 : pCommand.indexOf('|'));
+			String[] parts = pCommand.split("#");
 			
-			if ( i == -1 || i >= pCommand.length()-1 ) {
+			if ( parts.length < 2 || parts.length > 3 ) {
 				pHandler.sendClientMsg("Invalid request: "+pCommand);
 				return;
 			}
 			
-			id = pCommand.substring(0, i);
+			id = parts[0];
 			
-			result = vGrem.execute(pCommand.substring(i+1));
+			Map<String,Object> paramMap = null;
+			
+			if ( parts.length == 3 ) {
+				paramMap = new ObjectMapper().readValue(parts[2], HashMap.class);
+			}
+			
+			result = vGrem.execute(parts[1], paramMap);
 			t = System.currentTimeMillis()-t;
 			
 			String json = "{"+
@@ -46,6 +55,7 @@ public class CommandHandler implements ClientCommandHandler {
 			"}";
 			
 			pHandler.sendClientMsg(json);
+			System.out.println("Response "+id+": "+json.length()+" chars, "+t+"ms");
 		}
 		catch ( Exception e ) {
 			t = System.currentTimeMillis()-t;
@@ -60,7 +70,8 @@ public class CommandHandler implements ClientCommandHandler {
 			"}";
 			
 			pHandler.sendClientMsg(json);
-			System.err.println("Command Exception: "+pCommand+" // "+e+"\n"+e.getStackTrace());
+			System.err.println("Exception: "+pCommand+" // "+e);
+			e.printStackTrace();
 		}
 	}
 	
