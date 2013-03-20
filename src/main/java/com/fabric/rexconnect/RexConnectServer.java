@@ -3,18 +3,29 @@ package com.fabric.rexconnect;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 
+import org.apache.commons.configuration.BaseConfiguration;
 import org.quickserver.net.server.ClientCommandHandler;
 import org.quickserver.net.server.ClientHandler;
 import org.quickserver.net.server.QuickServer;
 
+import com.tinkerpop.rexster.client.RexsterClientTokens;
+
 /*================================================================================================*/
 public class RexConnectServer implements ClientCommandHandler {
 
+	private static BaseConfiguration RexConfig;
+	
     
     ////////////////////////////////////////////////////////////////////////////////////////////////
     /*--------------------------------------------------------------------------------------------*/
     public static void main(String args[]) {
 		try {
+			RexConfig = new BaseConfiguration() {{
+			    addProperty(RexsterClientTokens.CONFIG_PORT, 8184);
+			    addProperty(RexsterClientTokens.CONFIG_HOSTNAME, "ENTER_IP_ADDRESSES");
+			    addProperty(RexsterClientTokens.CONFIG_MESSAGE_RETRY_WAIT_MS, 0);
+			}};
+			
 			QuickServer qs = new QuickServer();
 			qs.setClientCommandHandler(RexConnectServer.class.getName());
 			qs.setPort(8185);
@@ -35,7 +46,7 @@ public class RexConnectServer implements ClientCommandHandler {
 														throws SocketTimeoutException, IOException {
 		long t = System.currentTimeMillis();
 		String id = "";
-		GremlinQuery q = null;
+		String result = null;
 		
 		try {
 			int i = (pCommand == null ? -1 : pCommand.indexOf('|'));
@@ -47,34 +58,34 @@ public class RexConnectServer implements ClientCommandHandler {
 			
 			id = pCommand.substring(0, i);
 			
-			q = new GremlinQuery();
-			q.execute(pCommand.substring(i+1));
+			GremlinQuery2 q = new GremlinQuery2(RexConfig);
+			result = q.execute(pCommand.substring(i+1));
 
 			t = System.currentTimeMillis()-t;
 			
 			String json = "{"+
 				"Request:'"+id+"',"+
 				"Success:true,"+
-				"Results:"+q.getResultListJson()+","+
+				"Results:"+result+","+
 				"QueryTime:"+t+
 			"}";
 			
 			pHandler.sendClientMsg(json);
-			//System.out.println("Command Success: "+t);
 		}
 		catch ( Exception e ) {
 			t = System.currentTimeMillis()-t;
+			String msg = e.getMessage();
 			
 			String json = "{"+
 				"Request:'"+id+"',"+
 				"Success:false,"+
-				(q == null ? "" : "results:"+q.getResultListJson()+",")+
+				(result == null ? "" : "results:"+result+",")+
 				"QueryTime:"+t+","+
-				"Exception:'"+e.getMessage().replace('\'', '"')+"'"+
+				"Exception:'"+(msg == null ? e.toString() : msg.replace('\'', '"'))+"'"+
 			"}";
 			
 			pHandler.sendClientMsg(json);
-			System.err.println("Command Exception: "+pCommand+" // "+e);
+			System.err.println("Command Exception: "+pCommand+" // "+e+"\n"+e.getStackTrace());
 		}
 	}
 	
