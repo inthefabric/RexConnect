@@ -1,0 +1,4 @@
+rexconnect_port=1111
+rexpro_hosts=x.x.x.x,y.y.y.y,z.z.z.z
+rexpro_port=8184
+rexpro_graph_name=MyGraph
