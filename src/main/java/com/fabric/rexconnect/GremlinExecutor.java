@@ -23,7 +23,6 @@ public class GremlinExecutor {
 	/*--------------------------------------------------------------------------------------------*/
 	public String execute(String pScript) throws Exception {
 		Object raw = vClient.execute(vInitGraph+pScript, Templates.TValue);
-		vInitGraph = "";
 		//System.out.println(" * Raw: "+raw);
 		return raw.toString();
 	}
