@@ -24,6 +24,7 @@ public class CommandHandler implements ClientCommandHandler {
 	/*--------------------------------------------------------------------------------------------*/
 	public void handleCommand(ClientHandler pHandler, String pCommand) 
 														throws SocketTimeoutException, IOException {
+		System.out.println("Command: "+pHandler+" / "+pCommand);
 		long t = System.currentTimeMillis();
 		String id = "";
 		String result = null;
@@ -48,10 +49,10 @@ public class CommandHandler implements ClientCommandHandler {
 			t = System.currentTimeMillis()-t;
 			
 			String json = "{"+
-				"request:'"+id+"',"+
-				"success:true,"+
-				"results:"+result+","+
-				"queryTime:"+t+
+				"\"request\":'"+id+"',"+
+				"\"success\":true,"+
+				"\"results\":"+result+","+
+				"\"queryTime\":"+t+
 			"}";
 			
 			pHandler.sendClientMsg(json);
@@ -62,11 +63,11 @@ public class CommandHandler implements ClientCommandHandler {
 			String msg = e.getMessage();
 			
 			String json = "{"+
-				"request:'"+id+"',"+
-				"success:false,"+
-				(result == null ? "" : "results:"+result+",")+
-				"queryTime:"+t+","+
-				"exception:'"+(msg == null ? e.toString() : msg.replace('\'', '"'))+"'"+
+				"\"request\":'"+id+"',"+
+				"\"success\":false,"+
+				(result == null ? "" : "\"results\":"+result+",")+
+				"\"queryTime\":"+t+","+
+				"\"exception\":'"+(msg == null ? e.toString() : msg.replace('\'', '"'))+"'"+
 			"}";
 			
 			pHandler.sendClientMsg(json);
@@ -78,12 +79,18 @@ public class CommandHandler implements ClientCommandHandler {
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
-	public void closingConnection(ClientHandler pHandler) throws IOException {}
+	public void closingConnection(ClientHandler pHandler) throws IOException {
+		System.out.println("Closing: "+pHandler);
+	}
 	
 	/*--------------------------------------------------------------------------------------------*/
-	public void gotConnected(ClientHandler pHandler) throws SocketTimeoutException, IOException {}
+	public void gotConnected(ClientHandler pHandler) throws SocketTimeoutException, IOException {
+		System.out.println("Connected: "+pHandler);
+	}
 	
 	/*--------------------------------------------------------------------------------------------*/
-	public void lostConnection(ClientHandler pHandler) throws IOException {}
+	public void lostConnection(ClientHandler pHandler) throws IOException {
+		System.out.println("Lost: "+pHandler);
+	}
     
 }

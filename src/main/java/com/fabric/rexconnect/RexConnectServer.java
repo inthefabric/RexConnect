@@ -20,7 +20,7 @@ public class RexConnectServer {
 		try {
 			final Properties props = new Properties();
 			props.load(new FileInputStream("rexConnectConfig.properties"));
-			System.out.println("Current Configuration:\n"+props+"\n\n");
+			System.out.println("TEST Current Configuration:\n"+props+"\n\n");
 			
 			RexConfig = new BaseConfiguration() {{
 				addProperty(RexsterClientTokens.CONFIG_PORT,
