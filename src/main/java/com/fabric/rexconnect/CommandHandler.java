@@ -18,13 +18,12 @@ public class CommandHandler implements ClientCommandHandler {
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
 	public CommandHandler() throws Exception {
-		vGrem = new GremlinExecutor(RexConnectServer.RexConfig);
+		vGrem = new GremlinExecutor();
 	}
 
 	/*--------------------------------------------------------------------------------------------*/
 	public void handleCommand(ClientHandler pHandler, String pCommand) 
 														throws SocketTimeoutException, IOException {
-		System.out.println("Command: "+pHandler+" / "+pCommand);
 		long t = System.currentTimeMillis();
 		String id = "";
 		String result = null;
@@ -33,7 +32,7 @@ public class CommandHandler implements ClientCommandHandler {
 			String[] parts = pCommand.split("#");
 			
 			if ( parts.length < 2 || parts.length > 3 ) {
-				pHandler.sendClientMsg("Invalid request: "+pCommand);
+				pHandler.sendClientMsg(" - Invalid request: "+pCommand);
 				return;
 			}
 			
@@ -44,12 +43,12 @@ public class CommandHandler implements ClientCommandHandler {
 			if ( parts.length == 3 ) {
 				paramMap = new ObjectMapper().readValue(parts[2], HashMap.class);
 			}
-			
+
 			result = vGrem.execute(parts[1], paramMap);
 			t = System.currentTimeMillis()-t;
 			
 			String json = "{"+
-				"\"request\":'"+id+"',"+
+				"\"request\":\""+id+"\","+
 				"\"success\":true,"+
 				"\"results\":"+result+","+
 				"\"queryTime\":"+t+
@@ -59,11 +58,15 @@ public class CommandHandler implements ClientCommandHandler {
 			System.out.println("Response "+id+": "+json.length()+" chars, "+t+"ms");
 		}
 		catch ( Exception e ) {
-			t = System.currentTimeMillis()-t;
+			System.err.println("Exception "+id+":");
+			System.err.println(" - Query: "+pCommand+"\n - Details: "+e);
+			e.printStackTrace();
+			
 			String msg = e.getMessage();
+			t = System.currentTimeMillis()-t;
 			
 			String json = "{"+
-				"\"request\":'"+id+"',"+
+				"\"request\":\""+id+"\","+
 				"\"success\":false,"+
 				(result == null ? "" : "\"results\":"+result+",")+
 				"\"queryTime\":"+t+","+
@@ -71,26 +74,18 @@ public class CommandHandler implements ClientCommandHandler {
 			"}";
 			
 			pHandler.sendClientMsg(json);
-			System.err.println("Exception: "+pCommand+" // "+e);
-			e.printStackTrace();
 		}
 	}
 	
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
-	public void closingConnection(ClientHandler pHandler) throws IOException {
-		System.out.println("Closing: "+pHandler);
-	}
+	public void closingConnection(ClientHandler pHandler) throws IOException {}
 	
 	/*--------------------------------------------------------------------------------------------*/
-	public void gotConnected(ClientHandler pHandler) throws SocketTimeoutException, IOException {
-		System.out.println("Connected: "+pHandler);
-	}
+	public void gotConnected(ClientHandler pHandler) throws SocketTimeoutException, IOException {}
 	
 	/*--------------------------------------------------------------------------------------------*/
-	public void lostConnection(ClientHandler pHandler) throws IOException {
-		System.out.println("Lost: "+pHandler);
-	}
+	public void lostConnection(ClientHandler pHandler) throws IOException {}
     
 }

@@ -7,6 +7,7 @@ import org.apache.commons.configuration.BaseConfiguration;
 import org.quickserver.net.server.QuickServer;
 
 import com.tinkerpop.rexster.client.RexsterClientTokens;
+import com.tinkerpop.rexster.protocol.msg.RexProChannel;
 
 /*================================================================================================*/
 public class RexConnectServer {
@@ -20,14 +21,16 @@ public class RexConnectServer {
 		try {
 			final Properties props = new Properties();
 			props.load(new FileInputStream("rexConnectConfig.properties"));
-			System.out.println("TEST Current Configuration:\n"+props+"\n\n");
+			System.out.println("Starting with configuration:\n"+props+"\n");
 			
 			RexConfig = new BaseConfiguration() {{
 				addProperty(RexsterClientTokens.CONFIG_PORT,
 					Integer.parseInt(props.getProperty("rexpro_port")));
 				addProperty(RexsterClientTokens.CONFIG_HOSTNAME, props.getProperty("rexpro_hosts"));
 				addProperty(RexsterClientTokens.CONFIG_MESSAGE_RETRY_WAIT_MS, 10);
-				addProperty("graph-name", props.getProperty("rexpro_graph_name"));
+				addProperty(RexsterClientTokens.CONFIG_GRAPH_NAME,
+					props.getProperty("rexpro_graph_name"));
+				addProperty(RexsterClientTokens.CONFIG_CHANNEL, RexProChannel.CHANNEL_MSGPACK);
 			}};
 			
 			QuickServer qs = new QuickServer();
