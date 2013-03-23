@@ -35,7 +35,7 @@ public class GremlinExecutor {
 		}
 		
 		if ( pObj instanceof String ) {
-			return "\""+pObj+"\"";
+			return "\""+(pObj+"").replace("\"", "\\\"")+"\"";
 		}
 		
 		if ( pObj instanceof Number || pObj instanceof Boolean ) {
