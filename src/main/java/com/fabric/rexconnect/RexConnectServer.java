@@ -39,6 +39,8 @@ public class RexConnectServer {
 			qs.setName("RexConnectServer");
 			qs.startServer();
 			System.out.println("Server started.");
+			
+			(new HeartbeatMonitor()).start();
 		}
 		catch ( Exception e ) {
 			System.err.println("RexConnectServer Exception: "+e);
