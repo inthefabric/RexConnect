@@ -15,7 +15,17 @@ public class GremlinExecutor {
 	/*--------------------------------------------------------------------------------------------*/
 	public String execute(String pScript, Map<String, Object> pParamMap) throws Exception {
 		RexsterClient client = RexsterClientFactory.open(RexConnectServer.RexConfig);
-		List<Object> list = client.execute(pScript, pParamMap);
+		List<Object> list;
+		
+		try {
+			list = client.execute(pScript, pParamMap);
+		}
+		catch ( Exception e ) {
+			System.err.println(" - Could not execute query: "+e);
+			client.close();
+			throw e;
+		}
+		
 		client.close();
 		
 		StringBuilder s = new StringBuilder();
