@@ -1,6 +1,7 @@
 package com.fabric.rexconnect;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,6 +43,14 @@ public class CommandHandler implements ClientCommandHandler {
 			
 			if ( parts.length == 3 ) {
 				paramMap = new ObjectMapper().readValue(parts[2], HashMap.class);
+
+				for ( String s : paramMap.keySet() ) {
+					Object val = paramMap.get(s);
+					
+					if ( BigDecimal.class.isInstance(val) ) {
+						paramMap.put(s, ((BigDecimal)val).longValueExact());
+					}
+				}
 			}
 
 			result = vGrem.execute(parts[1], paramMap);
