@@ -1,9 +1,11 @@
 package com.fabric.rexconnect;
-
 import java.io.FileInputStream;
 import java.util.Properties;
 
 import org.apache.commons.configuration.BaseConfiguration;
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.quickserver.net.server.QuickServer;
 
 import com.tinkerpop.rexster.client.RexsterClientTokens;
@@ -19,19 +21,11 @@ public class RexConnectServer {
     /*--------------------------------------------------------------------------------------------*/
     public static void main(String args[]) {
 		try {
-			final Properties props = new Properties();
-			props.load(new FileInputStream("rexConnectConfig.properties"));
-			System.out.println("Starting with configuration:\n"+props+"\n");
+			BasicConfigurator.configure();
+			Logger.getRootLogger().setLevel(Level.WARN);
 			
-			RexConfig = new BaseConfiguration() {{
-				addProperty(RexsterClientTokens.CONFIG_PORT,
-					Integer.parseInt(props.getProperty("rexpro_port")));
-				addProperty(RexsterClientTokens.CONFIG_HOSTNAME, props.getProperty("rexpro_hosts"));
-				addProperty(RexsterClientTokens.CONFIG_MESSAGE_RETRY_WAIT_MS, 10);
-				addProperty(RexsterClientTokens.CONFIG_GRAPH_NAME,
-					props.getProperty("rexpro_graph_name"));
-				addProperty(RexsterClientTokens.CONFIG_CHANNEL, RexProChannel.CHANNEL_MSGPACK);
-			}};
+			Properties props = buildRexConfig();
+			printHeader("Server", props);
 			
 			QuickServer qs = new QuickServer();
 			qs.setClientCommandHandler(CommandHandler.class.getName());
@@ -39,13 +33,59 @@ public class RexConnectServer {
 			qs.setName("RexConnectServer");
 			qs.startServer();
 			System.out.println("Server started.");
+			System.out.println("");
 			
-			(new HeartbeatMonitor()).start();
+			HeartbeatMonitor hm = new HeartbeatMonitor();
+			hm.start();
 		}
 		catch ( Exception e ) {
 			System.err.println("RexConnectServer Exception: "+e);
 			e.printStackTrace();
 		}
+    }
+    
+    /*--------------------------------------------------------------------------------------------*/
+    public static Properties buildRexConfig() throws Exception {
+		final Properties props = new Properties();
+		props.load(new FileInputStream("rexConnectConfig.properties"));
+		
+		RexConfig = new BaseConfiguration() {{
+
+			addProperty(RexsterClientTokens.CONFIG_PORT,
+				Integer.parseInt(props.getProperty("rexpro_port")));
+	
+			addProperty(RexsterClientTokens.CONFIG_HOSTNAME,
+				props.getProperty("rexpro_hosts"));
+	
+			addProperty(RexsterClientTokens.CONFIG_MESSAGE_RETRY_WAIT_MS,
+				10);
+	
+			addProperty(RexsterClientTokens.CONFIG_GRAPH_NAME,
+				props.getProperty("rexpro_graph_name"));
+			
+			addProperty(RexsterClientTokens.CONFIG_CHANNEL,
+				RexProChannel.CHANNEL_MSGPACK);
+			
+		}};
+		
+		return props;
+    }
+
+    /*--------------------------------------------------------------------------------------------*/
+    public static void printHeader(String pTitle, Properties pProps) {
+    	//Some ASCII, in the Rexster tradition...
+		System.out.println("");
+		System.out.println("  . .  --==###\\ . ");
+		System.out.println(" .    .  --==##\\  ");
+		System.out.println(" --==#########@##>");
+		System.out.println(".  .    --==###/. ");
+		System.out.println(" .   . --==###/  .");
+		System.out.println("");
+		System.out.println("RexConnect "+pTitle);
+		System.out.println(pProps+"");
+		System.out.println("");
+		System.out.println("-------------------------------------------------------------");
+		System.out.println("");
     }
     
 }

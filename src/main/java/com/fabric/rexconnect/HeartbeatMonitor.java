@@ -36,14 +36,14 @@ public class HeartbeatMonitor extends Thread {
 			
 			if ( vConnecting ) {
 				System.out.println("Connected!");
+				System.out.println("");
 			}
 
 			System.out.format("------------- Timer: %f days / Heartbeat: %dms\n",
 				(t-vTime)/86400000.0, (System.currentTimeMillis()-t));
 			
 			vConnecting = false;
-			sleep(5000);
-			return;
+			sleep(10000);
 		}
 		catch ( Exception e ) {
 			vConnecting = true;

@@ -21,7 +21,7 @@ public class GremlinExecutor {
 			list = client.execute(pScript, pParamMap);
 		}
 		catch ( Exception e ) {
-			System.err.println(" - Could not execute query: "+e);
+			//System.err.println(" - Could not execute query: "+e);
 			client.close();
 			throw e;
 		}
@@ -63,8 +63,8 @@ public class GremlinExecutor {
 			
 			return "{"+s.toString()+"}";
 		}
-
-		System.out.println(" # Unhandled object: "+pObj.getClass().getName()+" ... "+pObj);
+		
+		System.err.println(" # Unhandled object: "+pObj.getClass().getName()+" ... "+pObj);
 		return "{"+pObj.toString()+"}";
 	}
 	
