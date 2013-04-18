@@ -9,7 +9,10 @@ import java.util.Properties;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.codehaus.jackson.map.ObjectMapper;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.tinkerpop.rexster.client.RexProException;
 
 /*================================================================================================*/
 public class RexConnectConsole {
@@ -17,11 +20,12 @@ public class RexConnectConsole {
 	private static GremlinExecutor vGremEx;
 	private static String vPrevScript;
 	private static String vPrevParams;
+	private static boolean vPrettyPrint;
 	
 	
     ////////////////////////////////////////////////////////////////////////////////////////////////
     /*--------------------------------------------------------------------------------------------*/
-    public static void main(String args[]) {
+    public static void main(String args[]) throws Exception {
 		try {
 			BasicConfigurator.configure();
 			Logger.getRootLogger().setLevel(Level.ERROR);
@@ -46,8 +50,9 @@ public class RexConnectConsole {
 			}
 		}
 		catch ( Exception e ) {
-			System.err.println("RexConnectConsole Exception: "+e);
-			e.printStackTrace();
+			System.err.println("RexConnectConsole Error:");
+			System.err.println("");
+			throw e;
 		}
     }
 
@@ -66,6 +71,7 @@ public class RexConnectConsole {
     private static String executeAndPrint(String pScript, String pParams) throws Exception {
     	vPrevScript = pScript;
     	vPrevParams = pParams;
+    	//vPrettyPrint = true;
     	
 		Map<String,Object> paramMap = null;
 		
@@ -86,15 +92,27 @@ public class RexConnectConsole {
 
     	try {
 			result = vGremEx.execute(pScript, paramMap);
-			System.out.println("... "+result);
+	    	t = (System.currentTimeMillis()-t);
+			
+			if ( vPrettyPrint ) {
+				ObjectMapper om = new ObjectMapper();
+				Object resultObj = om.readValue(result, Object.class);
+				ObjectWriter ow = om.writerWithDefaultPrettyPrinter();
+				result = ow.writeValueAsString(resultObj);
+				System.out.println(result+"\n");
+			}
+			else {
+				System.out.println("... "+result);
+			}
     	}
-		catch ( Exception e ) {
-			System.err.println("... ERROR: "+e);
+		catch ( RexProException rpe ) {
+	    	t = (System.currentTimeMillis()-t);
+	    	
+			System.err.println("... ERROR: "+rpe);
 			System.err.flush();
 		}
     	
-    	t = (System.currentTimeMillis()-t);
-    	Thread.sleep(10); //helps sync stderr output
+    	Thread.sleep(10); //helps to sync stderr output
 		System.out.println("... "+t+"ms");
     	return result;
     }
