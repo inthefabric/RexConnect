@@ -84,7 +84,7 @@ public class RexConnectServer {
 		System.out.println("              --==##/  ");
 		System.out.println("          ---===##/    ");
 		System.out.println("");
-		System.out.println("RexConnect "+pTitle+" 0.2.0");
+		System.out.println("RexConnect "+pTitle+" 0.2.1");
 		System.out.println(pProps+"");
 		System.out.println("");
 		System.out.println("-------------------------------------------------------------");
