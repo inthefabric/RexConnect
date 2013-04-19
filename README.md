@@ -64,4 +64,5 @@ RexConn script> g.V[x.toInteger()]
 ... 39ms
 
 ```
-[More coming soon...]
+
+[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/9211f0a014961bb25e6329b4a86fc16a "githalytics.com")](http://githalytics.com/inthefabric/RexConnect)
