@@ -1,4 +1,0 @@
-syntax: glob
-target/*
-.rexster_history
-rexConnectConfig.properties
