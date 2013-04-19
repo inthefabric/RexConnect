@@ -38,11 +38,12 @@ Start the server by executing the "rexConnectServer" script (.sh or .bat) from t
 
 ```
 /RexConnect> bin/rexConnectServer.sh
-  .  .  --==##\ .
- .     .  --=##\
- --==#########@#>
-.  .      --=##/.
- .   .  --==##/  .
+
+          ---===##\    
+              --==##\  
+---===################>
+              --==##/  
+          ---===##/    
 
 RexConnect Server 0.2.0
 {rexpro_port=8184, rexpro_graph_name=FabricTest, rexconnect_port=8185, rexpro_hosts=localhost}
@@ -114,11 +115,11 @@ Executing a Gremlin query requires two input prompts: "script" and "params". The
 ```
 /RexConnect> bin/rexConnectConsole.sh
 
-  .  .  --==##\ .
- .     .  --=##\
- --==#########@#>
-.  .      --=##/.
- .   .  --==##/  .
+          ---===##\    
+              --==##\  
+---===################>
+              --==##/  
+          ---===##/    
 
 RexConnect Console 0.2.0
 {rexpro_port=8184, rexpro_graph_name=FabricTest, rexconnect_port=8185, rexpro_hosts=localhost}

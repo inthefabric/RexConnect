@@ -78,11 +78,11 @@ public class RexConnectServer {
     public static void printHeader(String pTitle, Properties pProps) {
     	//Some ASCII, in the Rexster tradition...
 		System.out.println("");
-		System.out.println("  .  .  --==##\\ . ");
-		System.out.println(" .     .  --=##\\  ");
-		System.out.println(" --==#########@#>");
-		System.out.println(".  .      --=##/. ");
-		System.out.println(" .   .  --==##/  .");
+		System.out.println("          ---===##\\    ");
+		System.out.println("              --==##\\  ");
+		System.out.println("---===################>");
+		System.out.println("              --==##/  ");
+		System.out.println("          ---===##/    ");
 		System.out.println("");
 		System.out.println("RexConnect "+pTitle+" 0.2.0");
 		System.out.println(pProps+"");
