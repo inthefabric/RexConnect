@@ -19,8 +19,94 @@ The [Fabric](https://github.com/inthefabric) API, website, and other related pro
 ## Server
 The [RexConnectServer](https://github.com/inthefabric/RexConnect/blob/master/src/main/java/com/fabric/rexconnect/RexConnectServer.java) accepts parameterized [Gremlin](https://github.com/tinkerpop/gremlin/wiki) scripts via TCP connection, executes them with the RexPro client, formats the results into a custom JSON format, and then responds with those results.
 
+RexConnectServer expects requests in the following format:
+
+```
+<Request ID>#<Gremlin Script>#<Parameter JSON>
+```
+
+Example request string:
+
+```
+A1234#g.V[x]#{"x":0}
+```
+
+Start the server by executing the "rexConnectServer" script (.sh or .bat) from the project's root directory.
+
+```
+/RexConnect> bin/rexConnectServer.sh
+  .  .  --==##\ .
+ .     .  --=##\
+ --==#########@#>
+.  .      --=##/.
+ .   .  --==##/  .
+
+RexConnect Server 0.2.0
+{rexpro_port=8184, rexpro_graph_name=FabricTest, rexconnect_port=8185, rexpro_hosts=localhost}
+
+-------------------------------------------------------------
+
+Loading QuickServer v1.4.5 ... Done
+
+-------------------------------
+ Name : RexConnectServer
+ Port : 8185
+-------------------------------
+
+Server started.
+
+Attempting to connect to RexPro...
+Connected!
+
+------------- Timer: 0.000000 days / Heartbeat: 434ms
+------------- Timer: 0.000121 days / Heartbeat: 111ms
+```
+
+Implement a function for connecting to RexConnectServer and executing a parameterized Gremlin query. Example C# implementation:
+
+```c#
+public static string ExecuteGremlin(string pId, string pQuery, string pParamJson=null) {
+	string request = pId+'#'+pQuery+(pParamJson == null ? "" : '#'+pParamJson);
+	byte[] data = Encoding.ASCII.GetBytes(request);
+	
+	TcpClient tcp = new TcpClient("localhost", 8185);
+	NetworkStream stream = tcp.GetStream();
+	stream.Write(data, 0, data.Length);
+
+	int size = tcp.ReceiveBufferSize;
+	int bytes = size;
+	string response = "";
+
+	while ( bytes == size ) {
+		data = new byte[size];
+		bytes = stream.Read(data, 0, data.Length);
+		response += Encoding.ASCII.GetString(data, 0, bytes);
+	}
+
+	tcp.Close();
+	return response;
+}
+```
+
+Execute some queries! Example C# implementation:
+
+```c#
+string id = "A1234";
+
+string graphInfo = ExecuteGremlin(id, "g");
+string withScript = ExecuteGremlin(id, "g.V[0]");
+string withParams = ExecuteGremlin(id, "g.V[x]", "{\"x\": 0}");
+
+string newVert = ExecuteGremlin(id,
+	"v1=g.addVertex([x:p0, y:p1, z:p2]); v0=g.V[0].next(); g.addEdge(v0,v1,edge); v1;",
+	"{\"p0\": 123, \"p1\": 234, \"p2\": 345, \"edge\": \"has\"}"
+);
+```
+
 ## Console
 To use the [RexConnectConsole](https://github.com/inthefabric/RexConnect/blob/master/src/main/java/com/fabric/rexconnect/RexConnectConsole.java), execute the "rexConnectConsole" script (.sh or .bat) from the project's root directory.
+
+Executing a Gremlin query requires two input prompts: "script" and "params". The "script" is a Gremlin script, which may include parameters. If the "script" does not use parameters, the "params" input can be empty. Otherwise, the "params" should be provided in JSON format.
 
 ```
 /RexConnect> bin/rexConnectConsole.sh
