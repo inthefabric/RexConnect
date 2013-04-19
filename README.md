@@ -2,6 +2,11 @@
 ## Overview
 RexConnect is simple Java application that wraps [Rexster](https://github.com/tinkerpop/rexster)'s [RexPro](https://github.com/tinkerpop/rexster/wiki/RexPro) with a server layer and some custom data formatting. It offers two modes: server and console. The server listens for incoming Gremlin scripts and returns the results. The console mode provides a simple, interactive way to execute Gremlin queries.
 
+### Development Considerations
+RexConnect is intended to be fast, lightweight, and easy to maintain. It began as a very minimal experiment to see if this approach would suit Fabric's needs. It did the job well, and has become slightly less minimal with the inclusion of the console mode.
+
+One alternative to the RexConnect approach would be to port the RexPro Java code to C#. The brand-new [RexPro-Client](https://github.com/dkuppitz/rexpro-client) project seems to take this approach -- it may actually be very useful for Fabric. Implementing a C# port would be much larger undertaking than the simpler RexConnect. Also important -- the Rexster and Titan projects are continually changing and growing. For Fabric's purposes, it seemed ideal to utilize Rexster's own RexPro client, essentially allowing the Rexster team to keep RexConnect up-to-date with all the latest changes and features. 
+
 ### Current Use Cases
 The [Fabric](https://github.com/inthefabric) API, website, and other related projects are written in C#. This makes it more difficult to interact with the Rexster Server, which is a Java project. RexConnect allows these projects to avoid REST/HTTP as a potential bottleneck, and instead, communicate at a lower level. Fabric currently uses three graph database scenarios. Both currently use Titan 0.3.0 with Rexster 2.3.0.
 
