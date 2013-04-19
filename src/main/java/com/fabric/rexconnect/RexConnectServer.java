@@ -66,6 +66,9 @@ public class RexConnectServer {
 			addProperty(RexsterClientTokens.CONFIG_CHANNEL,
 				RexProChannel.CHANNEL_MSGPACK);
 			
+			addProperty(RexsterClientTokens.CONFIG_TIMEOUT_READ_MS,
+				props.getProperty("rexpro_timeout_ms"));
+			
 		}};
 		
 		return props;
