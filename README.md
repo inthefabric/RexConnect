@@ -7,6 +7,9 @@ RexConnect is intended to be fast, lightweight, and easy to maintain. It began a
 
 One alternative to the RexConnect approach would be to port the RexPro Java code to C#. The brand-new [RexPro-Client](https://github.com/dkuppitz/rexpro-client) project seems to take this approach -- it may actually be very useful for Fabric. Implementing a C# port would be much larger undertaking than the simpler RexConnect. Also important -- the Rexster and Titan projects are continually changing and growing. For Fabric's purposes, it seemed ideal to utilize Rexster's own RexPro client, essentially allowing the Rexster team to keep RexConnect up-to-date with all the latest changes and features. 
 
+### Gremlin Transactions
+RexConnect uses the sessionless RexPro client. Each Gremlin request exists within its own scope, and represents a single database transaction. If a variable is created in a request (such as "a=g.V[0]"), that variable will *not* be available in subsequent requests.
+
 ### Current Use Cases
 The [Fabric](https://github.com/inthefabric) API, website, and other related projects are written in C#. This makes it more difficult to interact with the Rexster Server, which is a Java project. RexConnect allows these projects to avoid REST/HTTP as a potential bottleneck, and instead, communicate at a lower level. Fabric currently uses three graph database scenarios. Both currently use Titan 0.3.0 with Rexster 2.3.0.
 
