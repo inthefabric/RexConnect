@@ -79,7 +79,7 @@ public class CommandHandler implements ClientCommandHandler {
 				"\"success\":false,"+
 				(result == null ? "" : "\"results\":"+result+",")+
 				"\"queryTime\":"+t+","+
-				"\"exception\":'"+(msg == null ? e.toString() : msg.replace('\'', '"'))+"'"+
+				"\"exception\":\""+(msg == null ? e.toString() : msg.replace('\'', '"'))+"\""+
 			"}";
 			
 			pHandler.sendClientMsg(json);
