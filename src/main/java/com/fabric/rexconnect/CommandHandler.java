@@ -13,6 +13,8 @@ import org.quickserver.net.server.ClientHandler;
 /*================================================================================================*/
 public class CommandHandler implements ClientCommandHandler {
 
+	private static String ResultsValuePlaceholder = "{!{RESULTS}!}";
+	
 	private GremlinExecutor vGrem;
 	
 	
@@ -28,6 +30,8 @@ public class CommandHandler implements ClientCommandHandler {
 		long t = System.currentTimeMillis();
 		String id = "";
 		String result = null;
+		Boolean success = false;
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
 		
 		try {
 			String[] parts = pCommand.split("#");
@@ -54,17 +58,7 @@ public class CommandHandler implements ClientCommandHandler {
 			}
 
 			result = vGrem.execute(parts[1], paramMap);
-			t = System.currentTimeMillis()-t;
-			
-			String json = "{"+
-				"\"request\":\""+id+"\","+
-				"\"success\":true,"+
-				"\"results\":"+result+","+
-				"\"queryTime\":"+t+
-			"}";
-			
-			pHandler.sendClientMsg(json);
-			System.out.println("Response "+id+": "+json.length()+" chars, "+t+"ms");
+			success = true;
 		}
 		catch ( Exception e ) {
 			System.err.println("Exception "+id+":");
@@ -72,18 +66,30 @@ public class CommandHandler implements ClientCommandHandler {
 			e.printStackTrace();
 			
 			String msg = e.getMessage();
-			t = System.currentTimeMillis()-t;
-			
-			String json = "{"+
-				"\"request\":\""+id+"\","+
-				"\"success\":false,"+
-				(result == null ? "" : "\"results\":"+result+",")+
-				"\"queryTime\":"+t+","+
-				"\"exception\":\""+(msg == null ? e.toString() : msg.replace('\'', '"'))+"\""+
-			"}";
-			
-			pHandler.sendClientMsg(json);
+			jsonMap.put("exception", (msg == null ? e.toString() : msg));
 		}
+
+		t = System.currentTimeMillis()-t;
+		jsonMap.put("request", id);
+		jsonMap.put("success", success);
+		jsonMap.put("queryTime", t);
+		
+		if ( result != null ) {
+			//use placeholder to directly insert result JSON
+			jsonMap.put("results", ResultsValuePlaceholder);
+		}
+		
+		String json = new ObjectMapper().writeValueAsString(jsonMap);
+		
+		if ( result != null ) {
+			json = json.replace('"'+ResultsValuePlaceholder+'"', result);
+		}
+		
+		pHandler.sendClientMsg(json);
+		
+		System.out.println("Response "+id+": "+(success ? "success" : "failure")+", "+
+			json.length()+" chars, "+t+"ms");
+		//System.out.println("\n"+json+"\n");
 	}
 	
 	
