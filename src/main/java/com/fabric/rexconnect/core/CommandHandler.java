@@ -1,4 +1,4 @@
-package com.fabric.rexconnect;
+package com.fabric.rexconnect.core;
 
 import java.io.IOException;
 import java.math.BigDecimal;

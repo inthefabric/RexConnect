@@ -1,4 +1,4 @@
-package com.fabric.rexconnect;
+package com.fabric.rexconnect.core;
 
 /*================================================================================================*/
 public class HeartbeatMonitor extends Thread {

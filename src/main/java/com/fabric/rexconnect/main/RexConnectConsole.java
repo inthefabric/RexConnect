@@ -1,4 +1,5 @@
-package com.fabric.rexconnect;
+package com.fabric.rexconnect.main;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,6 +11,8 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import com.fabric.rexconnect.core.GremlinExecutor;
+import com.fabric.rexconnect.core.GremlinSessionExecutor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.tinkerpop.rexster.client.RexProException;
@@ -17,7 +20,8 @@ import com.tinkerpop.rexster.client.RexProException;
 /*================================================================================================*/
 public class RexConnectConsole {
 	
-	private static GremlinExecutor vGremEx;
+	//private static GremlinExecutor vGremEx;
+	private static GremlinSessionExecutor vGremSessEx;
 	private static String vPrevScript;
 	private static String vPrevParams;
 	private static boolean vPrettyPrint;
@@ -30,7 +34,8 @@ public class RexConnectConsole {
 			BasicConfigurator.configure();
 			Logger.getRootLogger().setLevel(Level.ERROR);
 			
-			vGremEx = new GremlinExecutor();
+			//vGremEx = new GremlinExecutor();
+			vGremSessEx = new GremlinSessionExecutor();
 			vPrevScript = "";
 			vPrevParams = "";
 			
@@ -91,7 +96,7 @@ public class RexConnectConsole {
     	long t = System.currentTimeMillis();
 
     	try {
-			result = vGremEx.execute(pScript, paramMap);
+			result = vGremSessEx.execute(pScript, paramMap);
 	    	t = (System.currentTimeMillis()-t);
 			
 			if ( vPrettyPrint ) {

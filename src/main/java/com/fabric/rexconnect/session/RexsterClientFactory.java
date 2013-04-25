@@ -1,7 +1,9 @@
 package com.fabric.rexconnect.session;
 
-import com.tinkerpop.rexster.protocol.filter.RexProMessageFilter;
-import com.tinkerpop.rexster.protocol.msg.RexProChannel;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.CompositeConfiguration;
 import org.apache.commons.configuration.Configuration;
@@ -13,13 +15,10 @@ import org.glassfish.grizzly.filterchain.TransportFilter;
 import org.glassfish.grizzly.nio.transport.TCPNIOTransport;
 import org.glassfish.grizzly.nio.transport.TCPNIOTransportBuilder;
 import org.glassfish.grizzly.strategies.LeaderFollowerNIOStrategy;
-import org.glassfish.grizzly.threadpool.GrizzlyExecutorService;
 import org.glassfish.grizzly.threadpool.ThreadPoolConfig;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import com.tinkerpop.rexster.protocol.filter.RexProMessageFilter;
+import com.tinkerpop.rexster.protocol.msg.RexProChannel;
 
 /**
  * Creates RexsterClient instances.

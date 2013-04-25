@@ -1,32 +1,34 @@
-package com.fabric.rexconnect;
+package com.fabric.rexconnect.core;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fabric.rexconnect.main.RexConnectServer;
 import com.tinkerpop.rexster.client.RexsterClient;
 import com.tinkerpop.rexster.client.RexsterClientFactory;
 
 /*================================================================================================*/
 public class GremlinExecutor {
+	
+	private RexsterClient vClient;
 
     
     ////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
 	public String execute(String pScript, Map<String, Object> pParamMap) throws Exception {
-		RexsterClient client = RexsterClientFactory.open(RexConnectServer.RexConfig);
 		List<Object> list;
 		
 		try {
-			list = client.execute(pScript, pParamMap);
+			list = getList(pScript, pParamMap);
 		}
 		catch ( Exception e ) {
-			//System.err.println(" - Could not execute query: "+e);
-			client.close();
+			closeClient();
 			throw e;
 		}
 		
-		client.close();
+		closeClient();
 		
 		StringBuilder s = new StringBuilder();
 		int n = (list == null ? 0 : list.size());
@@ -38,8 +40,23 @@ public class GremlinExecutor {
 		return "["+s.toString()+"]";
 	}
 	
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
-	public String objToStr(Object pObj) {
+	protected List<Object> getList(String pScript, Map<String, Object> pParamMap) throws Exception {
+		vClient = RexsterClientFactory.open(RexConnectServer.RexConfig);
+		return vClient.execute(pScript, pParamMap);
+	}
+
+	/*--------------------------------------------------------------------------------------------*/
+	protected void closeClient() throws IOException {
+		vClient.close();
+	}
+	
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+	/*--------------------------------------------------------------------------------------------*/
+	private String objToStr(Object pObj) {
 		if ( pObj == null ) {
 			return "";
 		}

@@ -1,19 +1,5 @@
 package com.fabric.rexconnect.session;
 
-import com.tinkerpop.rexster.client.RexProException;
-import com.tinkerpop.rexster.protocol.msg.ConsoleScriptResponseMessage;
-import com.tinkerpop.rexster.protocol.msg.ErrorResponseMessage;
-import com.tinkerpop.rexster.protocol.msg.GraphSONScriptResponseMessage;
-import com.tinkerpop.rexster.protocol.msg.MsgPackScriptResponseMessage;
-import com.tinkerpop.rexster.protocol.msg.RexProMessage;
-import com.tinkerpop.rexster.protocol.msg.ScriptRequestMessage;
-import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Logger;
-import org.glassfish.grizzly.Connection;
-import org.glassfish.grizzly.GrizzlyFuture;
-import org.glassfish.grizzly.nio.NIOConnection;
-import org.glassfish.grizzly.nio.transport.TCPNIOTransport;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -22,9 +8,22 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+
+import org.apache.commons.configuration.Configuration;
+import org.apache.log4j.Logger;
+import org.glassfish.grizzly.Connection;
+import org.glassfish.grizzly.GrizzlyFuture;
+import org.glassfish.grizzly.nio.NIOConnection;
+import org.glassfish.grizzly.nio.transport.TCPNIOTransport;
+
+import com.tinkerpop.rexster.client.RexProException;
+import com.tinkerpop.rexster.protocol.msg.ConsoleScriptResponseMessage;
+import com.tinkerpop.rexster.protocol.msg.ErrorResponseMessage;
+import com.tinkerpop.rexster.protocol.msg.GraphSONScriptResponseMessage;
+import com.tinkerpop.rexster.protocol.msg.MsgPackScriptResponseMessage;
+import com.tinkerpop.rexster.protocol.msg.RexProMessage;
 
 /**
  * Basic client for sending Gremlin scripts to Rexster and receiving results as Map objects with String
@@ -139,7 +138,7 @@ public class RexsterClient {
      */
     public <T> List<T> execute(final String script, final Map<String, Object> scriptArgs) throws RexProException, IOException {
         final ArrayBlockingQueue<Object> responseQueue = new ArrayBlockingQueue<Object>(1);
-        final RexProMessage msgToSend = createNoSessionScriptRequest(script, scriptArgs);
+        final RexProMessage msgToSend = createSessionScriptRequest(script, scriptArgs);
         final UUID requestId = msgToSend.requestAsUUID();
         responses.put(requestId, responseQueue);
 
@@ -289,26 +288,27 @@ public class RexsterClient {
         RexsterClientFactory.removeClient(this);
     }
 
-    private ScriptRequestMessage createNoSessionScriptRequest(final String script,
-                                                              final Map<String, Object> scriptArguments) throws IOException, RexProException {
-        final ScriptRequestMessage scriptMessage = new ScriptRequestMessage();
-        scriptMessage.Script = script;
-        scriptMessage.LanguageName = this.language;
-        scriptMessage.metaSetGraphName(this.graphName);
-        scriptMessage.metaSetGraphObjName(this.graphObjName);
-        scriptMessage.metaSetInSession(false);
-        scriptMessage.metaSetChannel(this.channel);
-        scriptMessage.metaSetTransaction(this.transaction);
-        scriptMessage.setRequestAsUUID(UUID.randomUUID());
 
-        scriptMessage.validateMetaData();
-
-        //attach bindings
-        if (scriptArguments != null) {
-            scriptMessage.Bindings.putAll(scriptArguments);
-        }
-
-        return scriptMessage;
+	////////////////////////////////////////////////////////////////////////////////////////////////
+	/*--------------------------------------------------------------------------------------------*/
+	private SessionScriptRequestMessage createSessionScriptRequest(final String script,
+					final Map<String, Object> pScriptArgs) throws IOException, RexProException {
+		final SessionScriptRequestMessage m = new SessionScriptRequestMessage();
+		m.Script = script;
+		m.LanguageName = this.language;
+		m.metaSetGraphName(this.graphName);
+		m.metaSetGraphObjName(this.graphObjName);
+		m.metaSetInSession(false);
+		m.metaSetChannel(this.channel);
+		m.metaSetTransaction(this.transaction);
+		m.setRequestAsUUID(UUID.randomUUID());
+		m.validateMetaData();
+		
+		if ( pScriptArgs != null ) {
+			m.Bindings.putAll(pScriptArgs);
+		}
+		
+		return m;
     }
 
 }

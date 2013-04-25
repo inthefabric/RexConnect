@@ -1,4 +1,4 @@
-package com.fabric.rexconnect;
+package com.fabric.rexconnect.main;
 import java.io.FileInputStream;
 import java.util.Properties;
 
@@ -8,6 +8,8 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.quickserver.net.server.QuickServer;
 
+import com.fabric.rexconnect.core.CommandHandler;
+import com.fabric.rexconnect.core.HeartbeatMonitor;
 import com.tinkerpop.rexster.client.RexsterClientTokens;
 import com.tinkerpop.rexster.protocol.msg.RexProChannel;
 
