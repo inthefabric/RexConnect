@@ -1,4 +1,4 @@
-package com.fabric.rexconnect.session;
+package com.fabric.rexconnect.rexster;
 
 /**
  * @author Stephen Mallette (http://stephen.genoprime.com)

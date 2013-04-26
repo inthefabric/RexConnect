@@ -12,16 +12,21 @@ import com.tinkerpop.rexster.client.RexsterClientFactory;
 /*================================================================================================*/
 public class GremlinExecutor {
 	
-	private RexsterClient vClient;
+	private RexConnectClient vClient;
 
     
     ////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
-	public String execute(String pScript, Map<String, Object> pParamMap) throws Exception {
+	public String execute(SessionContext pSessCtx, String pScript,
+												Map<String, Object> pParamMap) throws Exception {
 		List<Object> list;
 		
+		if ( pSessCtx == null ) {
+			pSessCtx = new SessionContext(false);
+		}
+		
 		try {
-			list = getList(pScript, pParamMap);
+			list = getList(pSessCtx, pScript, pParamMap);
 		}
 		catch ( Exception e ) {
 			closeClient();
@@ -43,9 +48,10 @@ public class GremlinExecutor {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
-	protected List<Object> getList(String pScript, Map<String, Object> pParamMap) throws Exception {
-		vClient = RexsterClientFactory.open(RexConnectServer.RexConfig);
-		return vClient.execute(pScript, pParamMap);
+	protected List<Object> getList(SessionContext pSessCtx, String pScript,
+												Map<String, Object> pParamMap) throws Exception {
+		vClient = RexConnectClient.create(RexConnectServer.RexConfig);
+		return vClient.execute(pSessCtx, pScript, pParamMap);
 	}
 
 	/*--------------------------------------------------------------------------------------------*/

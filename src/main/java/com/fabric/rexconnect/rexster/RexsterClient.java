@@ -37,6 +37,7 @@ import java.util.concurrent.TimeUnit;
  * the transaction will be handled properly.
  *
  * @author Stephen Mallette (http://stephen.genoprime.com)
+ * @author Zach Kinstner (@zachkinstner; minor modifications to support RexConnectClient)
  */
 public class RexsterClient {
     private static final Logger logger = Logger.getLogger(RexsterClient.class);
@@ -59,6 +60,8 @@ public class RexsterClient {
     private final TCPNIOTransport transport;
     private final String[] hosts;
     private final int port;
+    
+    private RexsterClientDelegate delegate;
 
     protected static ConcurrentHashMap<UUID, ArrayBlockingQueue<Object>> responses = new ConcurrentHashMap<UUID, ArrayBlockingQueue<Object>>();
 
@@ -80,6 +83,10 @@ public class RexsterClient {
         this.hosts = configuration.getStringArray(RexsterClientTokens.CONFIG_HOSTNAME);
 
         this.connections = new NIOConnection[this.hosts.length];
+    }
+    
+    public void setDelegate(RexsterClientDelegate del) {
+    	this.delegate = del;
     }
 
     /**
@@ -287,9 +294,9 @@ public class RexsterClient {
 
     }
 
-    /*public void close() throws IOException {
-        RexsterClientFactory.removeClient(this);
-    }*/
+    public void close() throws IOException {
+        //RexsterClientFactory.removeClient(this);
+    }
 
     private ScriptRequestMessage createNoSessionScriptRequest(final String script,
                                                               final Map<String, Object> scriptArguments) throws IOException, RexProException {
@@ -302,6 +309,10 @@ public class RexsterClient {
         scriptMessage.metaSetChannel(this.channel);
         scriptMessage.metaSetTransaction(this.transaction);
         scriptMessage.setRequestAsUUID(UUID.randomUUID());
+        
+        if ( this.delegate != null ) {
+        	this.delegate.updateScriptRequestMessage(scriptMessage);
+        }
 
         scriptMessage.validateMetaData();
 

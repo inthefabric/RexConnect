@@ -3,54 +3,52 @@ package com.fabric.rexconnect.core;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.apache.commons.configuration.Configuration;
-import org.glassfish.grizzly.nio.transport.TCPNIOTransport;
 
 import com.fabric.rexconnect.rexster.RexsterClient;
-import com.fabric.rexconnect.session.SessionScriptRequestMessage;
+import com.fabric.rexconnect.rexster.RexsterClientDelegate;
 import com.tinkerpop.rexster.client.RexProException;
-import com.tinkerpop.rexster.protocol.msg.RexProMessage;
+import com.tinkerpop.rexster.protocol.msg.ScriptRequestMessage;
 
 /*================================================================================================*/
-public class RexConnectClient extends RexsterClient {
-
+public class RexConnectClient extends RexsterClientDelegate {
+	
+	private RexsterClient vClient;
+	private SessionContext vSessCtx;
+	
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
-	protected RexConnectClient(Configuration pConfig, TCPNIOTransport pTrans) {
-		super(pConfig, pTrans);
+	public RexConnectClient(RexsterClient pClient) {
+		vClient = pClient;
 	}
 	
 	/*--------------------------------------------------------------------------------------------*/
-	public <T> List<T> execute(final String script, final Map<String, Object> scriptArgs)
-															throws RexProException, IOException {
-		final RexProMessage reqMsg = createSessionScriptRequest(script, scriptArgs);
-		return null;
+	public <T> List<T> execute(final SessionContext pSessCtx, final String pScript,
+			 				final Map<String, Object> pArgs) throws RexProException, IOException {
+		vSessCtx = pSessCtx;
+		return vClient.execute(pScript, pArgs);
 	}
 	
-
+	/*--------------------------------------------------------------------------------------------*/
+	public void updateScriptRequestMessage(ScriptRequestMessage pMsg) {
+		pMsg.setSessionAsUUID(vSessCtx.getSessionId());
+		pMsg.metaSetInSession(vSessCtx.useSession());
+		pMsg.metaSetIsolate(!vSessCtx.useSession());
+	}
+	
+	/*--------------------------------------------------------------------------------------------*/
+	public void close() throws IOException {
+		vClient.close();
+	}
+	
+	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
-	private SessionScriptRequestMessage createSessionScriptRequest(final String script,
-			final Map<String, Object> pScriptArgs) throws IOException, RexProException {
-		final SessionScriptRequestMessage m = new SessionScriptRequestMessage();
-		m.Script = script;
-		/*m.LanguageName = this.language;
-		m.metaSetGraphName(this.graphName);
-		m.metaSetGraphObjName(this.graphObjName);
-		m.metaSetInSession(false);
-		m.metaSetChannel(this.channel);
-		m.metaSetTransaction(this.transaction);*/
-		m.setRequestAsUUID(UUID.randomUUID());
-		m.validateMetaData();
-
-		if ( pScriptArgs != null ) {
-			m.Bindings.putAll(pScriptArgs);
-		}
-
-		return m;
+	public static RexConnectClient create(Configuration pConfig) {
+		RexsterClient rc = null; //RexsterClientFactory.open(pConfig);
+		return new RexConnectClient(rc);
 	}
 
 }

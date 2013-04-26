@@ -57,7 +57,7 @@ public class CommandHandler implements ClientCommandHandler {
 				}
 			}
 
-			result = vGrem.execute(parts[1], paramMap);
+			result = vGrem.execute(null, parts[1], paramMap);
 			success = true;
 		}
 		catch ( Exception e ) {

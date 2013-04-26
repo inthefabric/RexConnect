@@ -32,7 +32,7 @@ public class HeartbeatMonitor extends Thread {
 		
 		try {
 			long t = System.currentTimeMillis();
-			vGrem.execute("g", null);
+			vGrem.execute(null, "g", null);
 			
 			if ( vConnecting ) {
 				System.out.println("Connected!");

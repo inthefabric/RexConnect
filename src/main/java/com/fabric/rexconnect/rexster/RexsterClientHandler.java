@@ -1,13 +1,14 @@
-package com.fabric.rexconnect.session;
+package com.fabric.rexconnect.rexster;
 
-import java.io.IOException;
-
+import com.tinkerpop.rexster.protocol.msg.RexProMessage;
 import org.apache.log4j.Logger;
 import org.glassfish.grizzly.filterchain.BaseFilter;
 import org.glassfish.grizzly.filterchain.FilterChainContext;
 import org.glassfish.grizzly.filterchain.NextAction;
 
-import com.tinkerpop.rexster.protocol.msg.RexProMessage;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Stephen Mallette (http://stephen.genoprime.com)
