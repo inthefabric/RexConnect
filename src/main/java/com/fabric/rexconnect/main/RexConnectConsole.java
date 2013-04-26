@@ -1,11 +1,11 @@
 package com.fabric.rexconnect.main;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+
+import jline.console.ConsoleReader;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -21,7 +21,7 @@ import com.tinkerpop.rexster.client.RexProException;
 public class RexConnectConsole {
 	
 	private static GremlinExecutor vGremEx;
-	private static SessionContext vTestCtx;
+	private static SessionContext vCurrSessCtx;
 	private static String vPrevScript;
 	private static String vPrevParams;
 	private static boolean vPrettyPrint;
@@ -35,7 +35,7 @@ public class RexConnectConsole {
 			Logger.getRootLogger().setLevel(Level.ERROR);
 			
 			vGremEx = new GremlinExecutor();
-			vTestCtx = new SessionContext(true);
+			vCurrSessCtx = new SessionContext(false);
 			vPrevScript = "";
 			vPrevParams = "";
 			
@@ -47,11 +47,11 @@ public class RexConnectConsole {
 				
 				if ( !handleSpecialCommandAndPrint(script) ) {
 					String params = paramPrompt();
-					System.out.println("");
+					System.out.println();
 					executeAndPrint(script, params);
 				}
 				
-		    	System.out.println("\n");
+		    	System.out.println();
 			}
 		}
 		catch ( Exception e ) {
@@ -64,8 +64,34 @@ public class RexConnectConsole {
     /*--------------------------------------------------------------------------------------------*/
     private static Boolean handleSpecialCommandAndPrint(String pScript) throws Exception {
 		if ( pScript.equals("-prev") ) {
-			System.out.println("");
 			executeAndPrint(vPrevScript, vPrevParams);
+			return true;
+		}
+		
+		if ( pScript.equals("-pretty") ) {
+			vPrettyPrint = true;
+			return true;
+		}
+		
+		if ( pScript.equals("-ugly") ) {
+			vPrettyPrint = false;
+			return true;
+		}
+
+		if ( pScript.equals("-session") ) {
+			vCurrSessCtx = new SessionContext(true);
+			return true;
+		}
+
+		if ( pScript.equals("-commit") ) {
+			vGremEx.commit(vCurrSessCtx);
+			vCurrSessCtx = new SessionContext(false);
+			return true;
+		}
+
+		if ( pScript.equals("-rollback") ) {
+			vGremEx.rollback(vCurrSessCtx);
+			vCurrSessCtx = new SessionContext(false);
 			return true;
 		}
 		
@@ -76,8 +102,6 @@ public class RexConnectConsole {
     private static String executeAndPrint(String pScript, String pParams) throws Exception {
     	vPrevScript = pScript;
     	vPrevParams = pParams;
-    	//vPrettyPrint = true;
-    	
 		Map<String,Object> paramMap = null;
 		
     	try {
@@ -96,7 +120,7 @@ public class RexConnectConsole {
     	long t = System.currentTimeMillis();
 
     	try {
-			result = vGremEx.execute(vTestCtx, pScript, paramMap);
+			result = vGremEx.execute(vCurrSessCtx, pScript, paramMap);
 	    	t = (System.currentTimeMillis()-t);
 			
 			if ( vPrettyPrint ) {
@@ -138,7 +162,7 @@ public class RexConnectConsole {
 
     /*--------------------------------------------------------------------------------------------*/
     private static String readLine() throws IOException {
-		return new BufferedReader(new InputStreamReader(System.in)).readLine();
+    	return new ConsoleReader().readLine();
     }
     
 }

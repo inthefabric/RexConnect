@@ -42,7 +42,8 @@ public class RexConnectClient extends RexsterClientDelegate {
 	}
 	
 	/*--------------------------------------------------------------------------------------------*/
-	public void close() throws IOException {
+	public void close() throws RexProException, IOException {
+		closeSession();
 		vClient.close();
 	}
 	
@@ -64,6 +65,28 @@ public class RexConnectClient extends RexsterClientDelegate {
 		
 		RexProMessage rpm = vClient.execute(sr);
 		vSessCtx.openSession(rpm.sessionAsUUID());
+		
+		if ( !(rpm instanceof SessionResponseMessage) ) {
+			throw new IOException("Invalid response type: "+rpm);
+		}
+	}
+	
+	/*--------------------------------------------------------------------------------------------*/
+	protected void closeSession() throws RexProException, IOException {
+		if ( !vSessCtx.useSession() || vSessCtx.isSessionOpen() ) {
+			vSessCtx = null;
+			return;
+		}
+		
+		SessionRequestMessage sr = new SessionRequestMessage();
+		sr.Channel = vConfig.getInt(RexsterClientTokens.CONFIG_CHANNEL);
+		sr.setSessionAsUUID(UUID.randomUUID());
+		sr.setRequestAsUUID(UUID.randomUUID());
+		sr.metaSetGraphObjName(vConfig.getString(RexsterClientTokens.CONFIG_GRAPH_OBJECT_NAME));
+		sr.metaSetKillSession(true);
+		
+		vSessCtx = null;
+		RexProMessage rpm = vClient.execute(sr);
 		
 		if ( !(rpm instanceof SessionResponseMessage) ) {
 			throw new IOException("Invalid response type: "+rpm);

@@ -12,28 +12,27 @@ import com.tinkerpop.rexster.client.RexsterClientFactory;
 /*================================================================================================*/
 public class GremlinExecutor {
 	
-	private RexConnectClient vClient;
-
     
     ////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
 	public String execute(SessionContext pSessCtx, String pScript,
 												Map<String, Object> pParamMap) throws Exception {
 		List<Object> list;
+		RexConnectClient rcc = createClient();
 		
 		if ( pSessCtx == null ) {
 			pSessCtx = new SessionContext(false);
 		}
 		
 		try {
-			list = getList(pSessCtx, pScript, pParamMap);
+			list = rcc.execute(pSessCtx, pScript, pParamMap);
 		}
 		catch ( Exception e ) {
-			closeClient();
+			rcc.close();
 			throw e;
 		}
 		
-		closeClient();
+		rcc.close();
 		
 		StringBuilder s = new StringBuilder();
 		int n = (list == null ? 0 : list.size());
@@ -45,18 +44,25 @@ public class GremlinExecutor {
 		return "["+s.toString()+"]";
 	}
 	
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
-	protected List<Object> getList(SessionContext pSessCtx, String pScript,
-												Map<String, Object> pParamMap) throws Exception {
-		vClient = RexConnectClient.create(RexConnectServer.RexConfig);
-		return vClient.execute(pSessCtx, pScript, pParamMap);
+	public void commit(SessionContext pSessCtx) throws Exception {
+		RexConnectClient rcc = createClient();
+		rcc.execute(pSessCtx, "g.commit()", null);
+		rcc.close();
 	}
 
 	/*--------------------------------------------------------------------------------------------*/
-	protected void closeClient() throws IOException {
-		vClient.close();
+	public void rollback(SessionContext pSessCtx) throws Exception {
+		RexConnectClient rcc = createClient();
+		rcc.execute(pSessCtx, "g.rollback()", null);
+		rcc.close();
+	}
+	
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+	/*--------------------------------------------------------------------------------------------*/
+	protected RexConnectClient createClient() throws Exception {
+		return RexConnectClient.create(RexConnectServer.RexConfig);
 	}
 	
 
