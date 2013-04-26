@@ -1,13 +1,10 @@
 package com.fabric.rexconnect.core;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.fabric.rexconnect.main.RexConnectServer;
-import com.tinkerpop.rexster.client.RexsterClient;
-import com.tinkerpop.rexster.client.RexsterClientFactory;
 
 /*================================================================================================*/
 public class GremlinExecutor {
