@@ -2,6 +2,8 @@ package com.fabric.rexconnect.core.commands;
 
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 /*================================================================================================*/
 public class CommandArgValidator {
 	
@@ -10,6 +12,7 @@ public class CommandArgValidator {
 	public static final int StringType = 3;
 	
 	protected final int vIndex;
+	protected final String vName;
 	protected final int vType;
 	protected final boolean vRequired;
 	protected List<String> vAcceptStrings;
@@ -17,20 +20,39 @@ public class CommandArgValidator {
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
-	public CommandArgValidator(int pIndex, int pType, boolean pRequired) {
+	public CommandArgValidator(int pIndex, String pName, int pType, boolean pRequired) {
 		vIndex = pIndex;
+		vName = pName;
 		vType = pType;
 		vRequired = pRequired;
 		vAcceptStrings = null;
 	}
 	
 	/*--------------------------------------------------------------------------------------------*/
-	public CommandArgValidator(int pIndex, int pType, boolean pRequired, List<String> pAccepts) {
-		this(pIndex, pType, pRequired);
+	public CommandArgValidator(int pIndex, String pName, int pType, boolean pRequired,
+																		List<String> pAccepts) {
+		this(pIndex, pName, pType, pRequired);
 		vAcceptStrings = pAccepts;
 	}
 	
-
+	/*--------------------------------------------------------------------------------------------*/
+	public String toPromptString() {
+		String t = "string";
+		
+		switch ( vType ) {
+			case IntType:
+				t = "int";
+				break;
+				
+			case LongType:
+				t = "long";
+				break;
+		}
+		
+		return vName+" ("+t+(vRequired ? "" : "; optional")+")";
+	}
+	
+	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
 	public void validateArgs(String pCommand, List<String> pArgs) throws IllegalArgumentException {
@@ -80,17 +102,20 @@ public class CommandArgValidator {
 			}
 		}
 		
-		if ( !found ) {
-			throwEx(pCommand, "Argument value not supported.", pArg);
+		if ( found ) {
+			return;
 		}
+		
+		String list = "'"+StringUtils.join(vAcceptStrings, "', '")+"'";
+		throwEx(pCommand, "Argument value not supported. Available values: "+list, pArg);
 	}
 
 	/*--------------------------------------------------------------------------------------------*/
 	public void throwEx(String pCommand, String pMessage, String pArg)
 																throws IllegalArgumentException {
 		throw new IllegalArgumentException(
-			"Invalid argument "+vIndex+" for command '"+pCommand+"': "+pMessage+
-			"\nArgument value: "+pArg);
+			"Invalid '"+vName+"' argument (index "+vIndex+") for command '"+pCommand+"': "+pMessage+". "+
+			"Argument value: '"+pArg+"'.");
 	}
 	
 

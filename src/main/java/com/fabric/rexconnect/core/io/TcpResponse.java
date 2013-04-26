@@ -12,7 +12,4 @@ public class TcpResponse {
 	public String err;
 	public List<TcpResponseCommand> cmdList;
 	
-	//if "result" doesn't serialize correctly, try:
-	//http://stackoverflow.com/questions/16054366/jackson-serialize-and-deserialize-string-property-as-json
-	
 }

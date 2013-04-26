@@ -3,22 +3,26 @@ package com.fabric.rexconnect.core.commands;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fabric.rexconnect.core.RexConnectClient;
+import com.fabric.rexconnect.core.SessionContext;
+
 /*================================================================================================*/
 public class SessionCommand extends Command {
 	
 	public static final String START = "start";
+	public static final String CLOSE = "close";
 	public static final String COMMIT = "commit";
 	public static final String ROLLBACK = "rollback";
 	
-	public static final List<CommandArgValidator> Validators = InitValidators();
 	public static final List<String> Arg0s = InitArg0s();
+	public static final List<CommandArgValidator> Validators = InitValidators();
 	
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
 	private static List<CommandArgValidator> InitValidators() {
 		List<CommandArgValidator> vals = new ArrayList<CommandArgValidator>();
-		vals.add(new CommandArgValidator(0, CommandArgValidator.StringType, true, Arg0s));
+		vals.add(new CommandArgValidator(0, "action", CommandArgValidator.StringType, true, Arg0s));
 		return vals;
 	}
 	
@@ -26,6 +30,7 @@ public class SessionCommand extends Command {
 	private static List<String> InitArg0s() {
 		List<String> vals = new ArrayList<String>();
 		vals.add(START);
+		vals.add(CLOSE);
 		vals.add(COMMIT);
 		vals.add(ROLLBACK);
 		return vals;
@@ -34,25 +39,33 @@ public class SessionCommand extends Command {
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
-	public SessionCommand(List<String> pArgs) {
-		super(Command.SESSION, pArgs, Validators);
+	public SessionCommand(SessionContext pSessCtx, List<String> pArgs) {
+		super(pSessCtx, Command.SESSION, pArgs, Validators);
 	}
 	
 	/*--------------------------------------------------------------------------------------------*/
-	protected void executeInner() {
-		String setting = vArgs.get(0);
+	protected void executeInner() throws Exception {
+		RexConnectClient rcc = vSessCtx.createClient();
+		String action = vArgs.get(0);
 		
-		if ( setting.equals(START) ) {
-			return;
+		if ( action.equals(START) ) {
+			rcc.startSession();
+			vResponse.result = vSessCtx.getSessionId().toString();
 		}
 		
-		if ( setting.equals(COMMIT) ) {
-			return;
+		if ( action.equals(CLOSE) ) {
+			rcc.closeSession();
 		}
 		
-		if ( setting.equals(ROLLBACK) ) {
-			return;
+		if ( action.equals(COMMIT) ) {
+			rcc.execute("g.commit()", null);
 		}
+		
+		if ( action.equals(ROLLBACK) ) {
+			rcc.execute("g.rollback()", null);
+		}
+		
+		rcc.close();
 	}
 	
 }

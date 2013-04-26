@@ -1,8 +1,9 @@
 package com.fabric.rexconnect.main;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import jline.console.ConsoleReader;
@@ -10,22 +11,23 @@ import jline.console.ConsoleReader;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.codehaus.jackson.map.SerializationConfig.Feature;
 
-import com.fabric.rexconnect.core.GremlinExecutor;
 import com.fabric.rexconnect.core.SessionContext;
+import com.fabric.rexconnect.core.commands.Command;
+import com.fabric.rexconnect.core.commands.CommandArgValidator;
+import com.fabric.rexconnect.core.io.TcpResponseCommand;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.tinkerpop.rexster.client.RexProException;
 
 /*================================================================================================*/
 public class RexConnectConsole {
 	
-	private static GremlinExecutor vGremEx;
-	private static SessionContext vCurrSessCtx;
-	private static String vPrevScript;
-	private static String vPrevParams;
-	private static boolean vPrettyPrint;
-	
+	private static SessionContext vSessCtx;
+    private static ObjectMapper vObjMapper;
+    private static JsonFactory vJsonFactory;
+    
 	
     ////////////////////////////////////////////////////////////////////////////////////////////////
     /*--------------------------------------------------------------------------------------------*/
@@ -34,24 +36,24 @@ public class RexConnectConsole {
 			BasicConfigurator.configure();
 			Logger.getRootLogger().setLevel(Level.ERROR);
 			
-			vGremEx = new GremlinExecutor();
-			vCurrSessCtx = new SessionContext(false);
-			vPrevScript = "";
-			vPrevParams = "";
-			
 			Properties props = RexConnectServer.buildRexConfig();
 			RexConnectServer.printHeader("Console", props);
+
+			vSessCtx = new SessionContext(RexConnectServer.RexConfig);
+			vObjMapper = new ObjectMapper();
+			vJsonFactory = new JsonFactory();
 			
 			while ( true ) {
-				String script = prompt();
+				String cmd = commandPrompt();
+				List<CommandArgValidator> cmdArgVals = Command.argumentValidators(cmd);
+				List<String> cmdArgs = new ArrayList<String>();
 				
-				if ( !handleSpecialCommandAndPrint(script) ) {
-					String params = paramPrompt();
-					System.out.println();
-					executeAndPrint(script, params);
+				for ( CommandArgValidator v : cmdArgVals ) {
+					cmdArgs.add(commandArgPrompt(v));
 				}
 				
-		    	System.out.println();
+				executeAndPrint(cmd, cmdArgs);
+				System.out.println();
 			}
 		}
 		catch ( Exception e ) {
@@ -62,101 +64,36 @@ public class RexConnectConsole {
     }
 
     /*--------------------------------------------------------------------------------------------*/
-    private static Boolean handleSpecialCommandAndPrint(String pScript) throws Exception {
-		if ( pScript.equals("-prev") ) {
-			executeAndPrint(vPrevScript, vPrevParams);
-			return true;
-		}
-		
-		if ( pScript.equals("-pretty") ) {
-			vPrettyPrint = true;
-			return true;
-		}
-		
-		if ( pScript.equals("-ugly") ) {
-			vPrettyPrint = false;
-			return true;
-		}
+    private static void executeAndPrint(String pCmd, List<String> pCmdArgs) throws Exception {
+    	Command command = Command.build(vSessCtx, pCmd, pCmdArgs);
+    	command.execute();
+    	TcpResponseCommand resp = command.getResponse();
 
-		if ( pScript.equals("-session") ) {
-			vCurrSessCtx = new SessionContext(true);
-			return true;
-		}
-
-		if ( pScript.equals("-commit") ) {
-			vGremEx.commit(vCurrSessCtx);
-			vCurrSessCtx = new SessionContext(false);
-			return true;
-		}
-
-		if ( pScript.equals("-rollback") ) {
-			vGremEx.rollback(vCurrSessCtx);
-			vCurrSessCtx = new SessionContext(false);
-			return true;
-		}
-		
-		return false;
-    }
-    
-    /*--------------------------------------------------------------------------------------------*/
-    private static String executeAndPrint(String pScript, String pParams) throws Exception {
-    	vPrevScript = pScript;
-    	vPrevParams = pParams;
-		Map<String,Object> paramMap = null;
-		
-    	try {
-    		if ( pParams.length() > 0 ) {
-    			paramMap = new ObjectMapper().readValue(pParams, HashMap.class);
-    		}
-    	}
-		catch ( Exception e ) {
-			System.err.println("... INPUT ERROR: "+e);
-			System.err.flush();
-		}
-    	
     	////
     	
-    	String result = null;
-    	long t = System.currentTimeMillis();
-
-    	try {
-			result = vGremEx.execute(vCurrSessCtx, pScript, paramMap);
-	    	t = (System.currentTimeMillis()-t);
-			
-			if ( vPrettyPrint ) {
-				ObjectMapper om = new ObjectMapper();
-				Object resultObj = om.readValue(result, Object.class);
-				ObjectWriter ow = om.writerWithDefaultPrettyPrinter();
-				result = ow.writeValueAsString(resultObj);
-				System.out.println(result+"\n");
-			}
-			else {
-				System.out.println("... "+result);
-			}
-    	}
-		catch ( RexProException rpe ) {
-	    	t = (System.currentTimeMillis()-t);
-	    	
-			System.err.println("... ERROR: "+rpe);
-			System.err.flush();
-		}
-    	
+        StringWriter sw = new StringWriter();
+        JsonGenerator jg = vJsonFactory.createJsonGenerator(sw);
+        
+        if ( true ) {
+            jg.useDefaultPrettyPrinter();
+        }
+        
+        vObjMapper.writeValue(jg, resp);
+        System.out.println(sw.toString()+"\n");        
     	Thread.sleep(10); //helps to sync stderr output
-		System.out.println("... "+t+"ms");
-    	return result;
     }
     
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     /*--------------------------------------------------------------------------------------------*/
-    private static String prompt() throws IOException {
-    	System.out.print("RexConn script> ");
+    private static String commandPrompt() throws IOException {
+    	System.out.print("# RexConnect> ");
     	return readLine();
     }
     
     /*--------------------------------------------------------------------------------------------*/
-    private static String paramPrompt() throws IOException {
-    	System.out.print("        params> ");
+    private static String commandArgPrompt(CommandArgValidator pArgVal) throws IOException {
+    	System.out.print("#  - "+pArgVal.toPromptString()+": ");
     	return readLine();
     }
 

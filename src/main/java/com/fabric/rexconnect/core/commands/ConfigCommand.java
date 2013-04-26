@@ -3,6 +3,8 @@ package com.fabric.rexconnect.core.commands;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fabric.rexconnect.core.SessionContext;
+
 /*================================================================================================*/
 public class ConfigCommand extends Command {
 
@@ -14,16 +16,16 @@ public class ConfigCommand extends Command {
 	public static final int PRETTY_MODE_OFF = 0;
 	public static final int PRETTY_MODE_ON = 1;
 	
-	public static final List<CommandArgValidator> Validators = InitValidators();
 	public static final List<String> Arg0s = InitArg0s();
+	public static final List<CommandArgValidator> Validators = InitValidators();
 	
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
 	private static List<CommandArgValidator> InitValidators() {
 		List<CommandArgValidator> vals = new ArrayList<CommandArgValidator>();
-		vals.add(new CommandArgValidator(0, CommandArgValidator.StringType, true, Arg0s));
-		vals.add(new CommandArgValidator(1, CommandArgValidator.IntType, true));
+		vals.add(new CommandArgValidator(0, "setting", CommandArgValidator.StringType, true,Arg0s));
+		vals.add(new CommandArgValidator(1, "mode", CommandArgValidator.IntType, true));
 		return vals;
 	}
 	
@@ -38,8 +40,8 @@ public class ConfigCommand extends Command {
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
-	public ConfigCommand(List<String> pArgs) {
-		super(Command.CONFIG, pArgs, Validators);
+	public ConfigCommand(SessionContext pSessCtx, List<String> pArgs) {
+		super(pSessCtx, Command.CONFIG, pArgs, Validators);
 	}
 
 	/*--------------------------------------------------------------------------------------------*/

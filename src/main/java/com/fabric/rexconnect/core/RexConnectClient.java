@@ -19,44 +19,37 @@ import com.tinkerpop.rexster.protocol.msg.SessionResponseMessage;
 
 /*================================================================================================*/
 public class RexConnectClient extends RexsterClientDelegate {
-	
+
+	private SessionContext vSessCtx;
 	private RexsterClient vClient;
 	private Configuration vConfig;
-	private SessionContext vSessCtx;
 	
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
-	public RexConnectClient(RexsterClient pClient, Configuration pConfig) {
+	protected RexConnectClient(SessionContext pSessCtx, RexsterClient pClient,
+																		Configuration pConfig) {
+		vSessCtx = pSessCtx;
 		vClient = pClient;
 		vClient.setDelegate(this);
-		
 		vConfig = pConfig;
 	}
 	
 	/*--------------------------------------------------------------------------------------------*/
-	public <T> List<T> execute(final SessionContext pSessCtx, final String pScript,
-			 				final Map<String, Object> pArgs) throws RexProException, IOException {
-		setSessionContext(pSessCtx);
+	public <T> List<T> execute(final String pScript, final Map<String, Object> pArgs)
+															throws RexProException, IOException {
 		return vClient.execute(pScript, pArgs);
 	}
 	
 	/*--------------------------------------------------------------------------------------------*/
 	public void close() throws RexProException, IOException {
-		closeSession();
 		vClient.close();
 	}
 	
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
-	protected void setSessionContext(SessionContext pSessCtx) throws RexProException, IOException {
-		vSessCtx = pSessCtx;
-		
-		if ( !vSessCtx.useSession() || vSessCtx.isSessionOpen() ) {
-			return;
-		}
-		
+	public SessionResponseMessage startSession() throws RexProException, IOException {
 		SessionRequestMessage sr = new SessionRequestMessage();
 		sr.Channel = vConfig.getInt(RexsterClientTokens.CONFIG_CHANNEL);
 		sr.setSessionAsUUID(UUID.randomUUID());
@@ -64,20 +57,17 @@ public class RexConnectClient extends RexsterClientDelegate {
 		sr.metaSetGraphObjName(vConfig.getString(RexsterClientTokens.CONFIG_GRAPH_OBJECT_NAME));
 		
 		RexProMessage rpm = vClient.execute(sr);
-		vSessCtx.openSession(rpm.sessionAsUUID());
 		
 		if ( !(rpm instanceof SessionResponseMessage) ) {
 			throw new IOException("Invalid response type: "+rpm);
 		}
+
+		vSessCtx.openSession(rpm.sessionAsUUID());
+		return (SessionResponseMessage)rpm;
 	}
 	
 	/*--------------------------------------------------------------------------------------------*/
-	protected void closeSession() throws RexProException, IOException {
-		if ( !vSessCtx.useSession() || vSessCtx.isSessionOpen() ) {
-			vSessCtx = null;
-			return;
-		}
-		
+	public SessionResponseMessage closeSession() throws RexProException, IOException {
 		SessionRequestMessage sr = new SessionRequestMessage();
 		sr.Channel = vConfig.getInt(RexsterClientTokens.CONFIG_CHANNEL);
 		sr.setSessionAsUUID(UUID.randomUUID());
@@ -85,21 +75,19 @@ public class RexConnectClient extends RexsterClientDelegate {
 		sr.metaSetGraphObjName(vConfig.getString(RexsterClientTokens.CONFIG_GRAPH_OBJECT_NAME));
 		sr.metaSetKillSession(true);
 		
-		vSessCtx = null;
 		RexProMessage rpm = vClient.execute(sr);
 		
 		if ( !(rpm instanceof SessionResponseMessage) ) {
 			throw new IOException("Invalid response type: "+rpm);
 		}
-	}
-	
-	/*--------------------------------------------------------------------------------------------*/
-	protected RexProMessage execute(final RexProMessage pMsg) throws RexProException, IOException {
-		return vClient.execute(pMsg);
+		
+		vSessCtx.closeSession();
+		return (SessionResponseMessage)rpm;
 	}
 	
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
+	// RexsterClientDelegate methods
 	/*--------------------------------------------------------------------------------------------*/
 	public void onRequest(RexProMessage pMsg) {
 		vSessCtx.addRequest(pMsg);
@@ -114,7 +102,7 @@ public class RexConnectClient extends RexsterClientDelegate {
 	
 	/*--------------------------------------------------------------------------------------------*/
 	public void updateScriptRequestMessage(ScriptRequestMessage pMsg) {
-		Boolean s = vSessCtx.useSession();
+		Boolean s = vSessCtx.isSessionOpen();
 		pMsg.metaSetInSession(s);
 		pMsg.metaSetIsolate(!s);
 		
@@ -127,9 +115,10 @@ public class RexConnectClient extends RexsterClientDelegate {
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
-	public static RexConnectClient create(Configuration pConfig) throws Exception {
+	public static RexConnectClient create(SessionContext pSessCtx, Configuration pConfig)
+																				throws Exception {
 		RexsterClient rc = RexsterClientFactory.open(pConfig);
-		return new RexConnectClient(rc, pConfig);
+		return new RexConnectClient(pSessCtx, rc, pConfig);
 	}
 
 }

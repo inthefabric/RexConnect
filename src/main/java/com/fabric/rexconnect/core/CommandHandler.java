@@ -13,20 +13,14 @@ import org.quickserver.net.server.ClientHandler;
 /*================================================================================================*/
 public class CommandHandler implements ClientCommandHandler {
 
-	private static String ResultsValuePlaceholder = "{!{RESULTS}!}";
-	
-	private GremlinExecutor vGrem;
-	
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
-	public CommandHandler() throws Exception {
-		vGrem = new GremlinExecutor();
-	}
-
-	/*--------------------------------------------------------------------------------------------*/
 	public void handleCommand(ClientHandler pHandler, String pCommand) 
 														throws SocketTimeoutException, IOException {
+		System.out.println("ECHO: "+pCommand);
+		
+		/*
 		long t = System.currentTimeMillis();
 		String id = "";
 		String result = null;
@@ -90,6 +84,7 @@ public class CommandHandler implements ClientCommandHandler {
 		System.out.println("Response "+id+": "+(success ? "success" : "failure")+", "+
 			json.length()+" chars, "+t+"ms");
 		//System.out.println("\n"+json+"\n");
+		*/
 	}
 	
 	

@@ -3,7 +3,6 @@ package com.fabric.rexconnect.core;
 /*================================================================================================*/
 public class HeartbeatMonitor extends Thread {
 
-	private GremlinExecutor vGrem;
 	private long vTime;
 	private boolean vConnecting;
 	
@@ -12,7 +11,6 @@ public class HeartbeatMonitor extends Thread {
 	/*--------------------------------------------------------------------------------------------*/
 	public HeartbeatMonitor() {
 		super();
-		vGrem = new GremlinExecutor();
 		vTime = System.currentTimeMillis();
 		vConnecting = true;
 	}
@@ -32,8 +30,10 @@ public class HeartbeatMonitor extends Thread {
 		
 		try {
 			long t = System.currentTimeMillis();
-			vGrem.execute(null, "g", null);
+			//vGrem.execute(null, "g", null);
+			throw new Exception("No query was executed.");
 			
+			/*
 			if ( vConnecting ) {
 				System.out.println("Connected!");
 				System.out.println("");
@@ -43,10 +43,18 @@ public class HeartbeatMonitor extends Thread {
 				(t-vTime)/86400000.0, (System.currentTimeMillis()-t));
 			
 			vConnecting = false;
-			sleep(10000);
+			sleep(9000);
+			*/
 		}
 		catch ( Exception e ) {
 			vConnecting = true;
+		}
+		
+		try {
+			sleep(1000);
+		}
+		catch ( InterruptedException e ) {
+			System.err.println("Heartbeat timer exception: "+e);
 		}
 	}
     
