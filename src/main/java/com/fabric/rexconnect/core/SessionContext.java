@@ -4,27 +4,38 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.tinkerpop.rexster.protocol.msg.ScriptRequestMessage;
+import com.tinkerpop.rexster.protocol.msg.RexProMessage;
 
 /*================================================================================================*/
 public class SessionContext {
 	
 	private UUID vSessId;
 	private Boolean vUseSession;
-	private List<ScriptRequestMessage> vReqList;
+	private List<RexProMessage> vReqList;
+	private List<RexProMessage> vRespList;
 	
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
 	public SessionContext(Boolean pUseSession) {
-		vSessId = UUID.randomUUID();
 		vUseSession = pUseSession;
-		vReqList = new ArrayList<ScriptRequestMessage>();
+		vReqList = new ArrayList<RexProMessage>();
+		vRespList = new ArrayList<RexProMessage>();
 	}
 	
 	/*--------------------------------------------------------------------------------------------*/
 	public UUID getSessionId() {
 		return vSessId;
+	}
+
+	/*--------------------------------------------------------------------------------------------*/
+	public void openSession(UUID pSessId) {
+		vSessId = pSessId;
+	}
+	
+	/*--------------------------------------------------------------------------------------------*/
+	public Boolean isSessionOpen() {
+		return (vSessId != null);
 	}
 	
 	/*--------------------------------------------------------------------------------------------*/
@@ -33,8 +44,13 @@ public class SessionContext {
 	}
 	
 	/*--------------------------------------------------------------------------------------------*/
-	public void addRequest(ScriptRequestMessage pReq) {
-		vReqList.add(pReq);
+	public void addRequest(RexProMessage pMsg) {
+		vReqList.add(pMsg);
+	}
+
+	/*--------------------------------------------------------------------------------------------*/
+	public void addResponse(RexProMessage pMsg) {
+		vRespList.add(pMsg);
 	}
 	
 }

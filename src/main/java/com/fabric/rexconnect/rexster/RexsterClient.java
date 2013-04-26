@@ -1,8 +1,6 @@
 package com.fabric.rexconnect.rexster;
 
 import com.tinkerpop.rexster.client.RexProException;
-import com.tinkerpop.rexster.client.RexsterClientFactory;
-import com.tinkerpop.rexster.client.RexsterClientTokens;
 import com.tinkerpop.rexster.protocol.msg.ConsoleScriptResponseMessage;
 import com.tinkerpop.rexster.protocol.msg.ErrorResponseMessage;
 import com.tinkerpop.rexster.protocol.msg.GraphSONScriptResponseMessage;
@@ -24,7 +22,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -100,6 +97,11 @@ public class RexsterClient {
         final ArrayBlockingQueue<Object> responseQueue = new ArrayBlockingQueue<Object>(1);
         final UUID requestId = rawMessage.requestAsUUID();
         responses.put(requestId, responseQueue);
+
+        if ( this.delegate != null ) {
+        	this.delegate.onRequest(rawMessage);
+        }
+        
         try {
             this.sendRequest(rawMessage);
         } catch (Throwable t) {
@@ -124,7 +126,13 @@ public class RexsterClient {
             throw new RexProException("RexsterClient doesn't support the message type returned.");
         }
 
-        return (RexProMessage) resultMessage;
+        RexProMessage rpm = (RexProMessage)resultMessage;
+        
+        if ( this.delegate != null ) {
+        	this.delegate.onResponse(rpm);
+        }
+        
+        return rpm;
     }
 
     /**
@@ -152,6 +160,10 @@ public class RexsterClient {
         final UUID requestId = msgToSend.requestAsUUID();
         responses.put(requestId, responseQueue);
 
+        if ( this.delegate != null ) {
+        	this.delegate.onRequest(msgToSend);
+        }
+        
         try {
             this.sendRequest(msgToSend);
         } catch (Throwable t) {
@@ -171,6 +183,10 @@ public class RexsterClient {
 
         if (resultMessage == null) {
             throw new IOException(String.format("Message received response timeoutConnection (%s s)", this.timeoutConnection));
+        }
+
+        if ( this.delegate != null && resultMessage instanceof RexProMessage ) {
+        	this.delegate.onResponse((RexProMessage)resultMessage);
         }
 
         if (resultMessage instanceof MsgPackScriptResponseMessage) {
@@ -295,7 +311,7 @@ public class RexsterClient {
     }
 
     public void close() throws IOException {
-        //RexsterClientFactory.removeClient(this);
+        RexsterClientFactory.removeClient(this);
     }
 
     private ScriptRequestMessage createNoSessionScriptRequest(final String script,

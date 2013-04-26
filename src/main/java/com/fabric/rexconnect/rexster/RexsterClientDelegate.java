@@ -1,5 +1,6 @@
 package com.fabric.rexconnect.rexster;
 
+import com.tinkerpop.rexster.protocol.msg.RexProMessage;
 import com.tinkerpop.rexster.protocol.msg.ScriptRequestMessage;
 
 /**
@@ -9,6 +10,8 @@ import com.tinkerpop.rexster.protocol.msg.ScriptRequestMessage;
  */
 public abstract class RexsterClientDelegate {
 	
+	public abstract void onRequest(RexProMessage msg);
+	public abstract void onResponse(RexProMessage msg);
 	public abstract void updateScriptRequestMessage(ScriptRequestMessage msg);
 	
 }
