@@ -19,8 +19,8 @@ public class SessionScriptRequestMessage extends ScriptRequestMessage {
 			RexProMessageMetaField.define(META_KEY_IN_SESSION, false, true, Boolean.class),
 			
 			//Set graph and graph variable name
-			RexProMessageMetaField.define(META_KEY_GRAPH_NAME, false, null, String.class),
-			RexProMessageMetaField.define(META_KEY_GRAPH_OBJECT_NAME, false, "g", String.class),
+			//RexProMessageMetaField.define(META_KEY_GRAPH_NAME, false, null, String.class),
+			//RexProMessageMetaField.define(META_KEY_GRAPH_OBJECT_NAME, false, "g", String.class),
 
 			//Variables defined in this request will be available in the next
 			RexProMessageMetaField.define(META_KEY_ISOLATE_REQUEST, false, false, Boolean.class),
