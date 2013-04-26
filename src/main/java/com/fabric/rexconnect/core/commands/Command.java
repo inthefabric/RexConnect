@@ -16,7 +16,7 @@ public abstract class Command {
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
-	public Command(String pCommand, List<String> pArgs, List<CommandArgValidator> pValidators) {
+	protected Command(String pCommand, List<String> pArgs, List<CommandArgValidator> pValidators) {
 		vCommand = pCommand;
 		vArgs = pArgs;
 		vValidators = pValidators;
