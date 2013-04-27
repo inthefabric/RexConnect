@@ -99,7 +99,7 @@ public class RexConnectConsole {
 
 	/*--------------------------------------------------------------------------------------------*/
 	private static String commandArgPrompt(CommandArgValidator pArgVal) throws IOException {
-		System.out.print("#  - "+pArgVal.toPromptString()+": ");
+		System.out.print("#   ..."+pArgVal.toPromptString()+": ");
 		return readLine();
 	}
 

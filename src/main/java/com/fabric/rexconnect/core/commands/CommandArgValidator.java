@@ -49,7 +49,7 @@ public class CommandArgValidator {
 				break;
 		}
 		
-		return vName+" (arg #"+vIndex+"; "+t+(vRequired ? "" : "; optional")+")";
+		return vName+" ("+vIndex+"; "+t+(vRequired ? "" : "; opt")+")";
 	}
 	
 	

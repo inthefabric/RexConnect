@@ -80,11 +80,11 @@ public class RexConnectServer {
     public static void printHeader(String pTitle, Properties pProps) {
     	//Some ASCII, in the Gremlin/Rexster tradition...
 		System.out.println("");
-		System.out.println("          ---===##\\    ");
-		System.out.println("              --==##\\  ");
-		System.out.println("---===################>");
-		System.out.println("              --==##/  ");
-		System.out.println("          ---===##/    ");
+		System.out.println("\"            ---===##\\    ");
+		System.out.println("\"                --==##\\  ");
+		System.out.println("\"  ---===################>");
+		System.out.println("\"                --==##/  ");
+		System.out.println("\"            ---===##/    ");
 		System.out.println("");
 		System.out.println("RexConnect "+pTitle+" 0.3.0");
 		System.out.println(pProps+"");
