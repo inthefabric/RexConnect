@@ -16,7 +16,7 @@ if [ "$JAVA_OPTIONS" = "" ] ; then
 fi
 
 # Launch the application
-$JAVA $JAVA_OPTIONS -cp $CP com.fabric.rexconnect.RexConnectServer $@
+$JAVA $JAVA_OPTIONS -cp $CP com.fabric.rexconnect.main.RexConnectServer $@
 
 # Return the program's exit code
 exit $?
