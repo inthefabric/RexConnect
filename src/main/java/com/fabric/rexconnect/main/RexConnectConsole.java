@@ -11,12 +11,13 @@ import jline.console.ConsoleReader;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.codehaus.jackson.map.SerializationConfig.Feature;
 
 import com.fabric.rexconnect.core.SessionContext;
 import com.fabric.rexconnect.core.commands.Command;
 import com.fabric.rexconnect.core.commands.CommandArgValidator;
+import com.fabric.rexconnect.core.io.PrettyJson;
 import com.fabric.rexconnect.core.io.TcpResponseCommand;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,8 +41,10 @@ public class RexConnectConsole {
 			RexConnectServer.printHeader("Console", props);
 
 			vSessCtx = new SessionContext(RexConnectServer.RexConfig);
-			vObjMapper = new ObjectMapper();
 			vJsonFactory = new JsonFactory();
+			
+			vObjMapper = new ObjectMapper();
+			vObjMapper.setSerializationInclusion(Include.NON_NULL);
 			
 			while ( true ) {
 				String cmd = commandPrompt();
@@ -75,7 +78,7 @@ public class RexConnectConsole {
         JsonGenerator jg = vJsonFactory.createJsonGenerator(sw);
         
         if ( vSessCtx.getConfigPrettyMode() ) {
-            jg.useDefaultPrettyPrinter();
+        	jg.setPrettyPrinter(new PrettyJson());
         }
         
         vObjMapper.writeValue(jg, resp);

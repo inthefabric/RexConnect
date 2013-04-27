@@ -78,7 +78,7 @@ public class RexConnectServer {
 
     /*--------------------------------------------------------------------------------------------*/
     public static void printHeader(String pTitle, Properties pProps) {
-    	//Some ASCII, in the Rexster tradition...
+    	//Some ASCII, in the Gremlin/Rexster tradition...
 		System.out.println("");
 		System.out.println("          ---===##\\    ");
 		System.out.println("              --==##\\  ");
@@ -86,7 +86,7 @@ public class RexConnectServer {
 		System.out.println("              --==##/  ");
 		System.out.println("          ---===##/    ");
 		System.out.println("");
-		System.out.println("RexConnect "+pTitle+" 0.2.3");
+		System.out.println("RexConnect "+pTitle+" 0.3.0");
 		System.out.println(pProps+"");
 		System.out.println("");
 		System.out.println("-------------------------------------------------------------");
