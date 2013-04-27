@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.UUID;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.quickserver.net.server.ClientCommandHandler;
 import org.quickserver.net.server.ClientHandler;
 
@@ -14,6 +13,7 @@ import com.fabric.rexconnect.core.io.TcpRequest;
 import com.fabric.rexconnect.core.io.TcpRequestCommand;
 import com.fabric.rexconnect.core.io.TcpResponse;
 import com.fabric.rexconnect.main.RexConnectServer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /*================================================================================================*/
 public class CommandHandler implements ClientCommandHandler {
