@@ -1,90 +1,69 @@
 package com.fabric.rexconnect.core;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.net.SocketTimeoutException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.UUID;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.quickserver.net.server.ClientCommandHandler;
 import org.quickserver.net.server.ClientHandler;
 
+import com.fabric.rexconnect.core.commands.Command;
+import com.fabric.rexconnect.core.io.PrettyJson;
+import com.fabric.rexconnect.core.io.TcpRequest;
+import com.fabric.rexconnect.core.io.TcpRequestCommand;
+import com.fabric.rexconnect.core.io.TcpResponse;
+import com.fabric.rexconnect.main.RexConnectServer;
+
 /*================================================================================================*/
 public class CommandHandler implements ClientCommandHandler {
-
+	
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
-	public void handleCommand(ClientHandler pHandler, String pCommand) 
+	public void handleCommand(ClientHandler pHandler, String pRequest) 
 														throws SocketTimeoutException, IOException {
-		System.out.println("ECHO: "+pCommand);
-		
-		/*
 		long t = System.currentTimeMillis();
-		String id = "";
-		String result = null;
-		Boolean success = false;
-		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		TcpResponse resp = new TcpResponse();
+		SessionContext sessCtx = new SessionContext(RexConnectServer.RexConfig);
 		
 		try {
-			String[] parts = pCommand.split("#");
+			TcpRequest req = new ObjectMapper().readValue(pRequest, TcpRequest.class);
 			
-			if ( parts.length < 2 || parts.length > 3 ) {
-				pHandler.sendClientMsg(" - Invalid request: "+pCommand);
-				return;
+			if ( req.sessId != null ) {
+				sessCtx.openSession(UUID.fromString(req.sessId));
 			}
 			
-			id = parts[0];
+			resp.reqId = req.reqId;
 			
-			Map<String,Object> paramMap = null;
-			
-			if ( parts.length == 3 ) {
-				paramMap = new ObjectMapper().readValue(parts[2], HashMap.class);
-
-				for ( String s : paramMap.keySet() ) {
-					Object val = paramMap.get(s);
-					
-					if ( BigDecimal.class.isInstance(val) ) {
-						paramMap.put(s, ((BigDecimal)val).longValueExact());
-					}
-				}
+			for ( TcpRequestCommand reqCmd : req.cmdList ) {
+				Command c = Command.build(sessCtx, reqCmd.cmd, reqCmd.args);
+				c.execute();
+				resp.cmdList.add(c.getResponse());
 			}
-
-			result = vGrem.execute(null, parts[1], paramMap);
-			success = true;
 		}
 		catch ( Exception e ) {
-			System.err.println("Exception "+id+":");
-			System.err.println(" - Query: "+pCommand+"\n - Details: "+e);
-			e.printStackTrace();
+			System.err.println("Exception "+resp.reqId+":\n"+
+				" - Request: "+pRequest+"\n - Details: "+e);
+			e.printStackTrace(System.err);
 			
 			String msg = e.getMessage();
-			jsonMap.put("exception", (msg == null ? e.toString() : msg));
+			resp.err = (msg == null ? e.toString() : msg);
 		}
 
-		t = System.currentTimeMillis()-t;
-		jsonMap.put("request", id);
-		jsonMap.put("success", success);
-		jsonMap.put("queryTime", t);
+		resp.sessId = (sessCtx.isSessionOpen() ? sessCtx.getSessionId().toString() : null);
+		resp.timer = System.currentTimeMillis()-t;
 		
-		if ( result != null ) {
-			//use placeholder to directly insert result JSON
-			jsonMap.put("results", ResultsValuePlaceholder);
-		}
-		
-		String json = new ObjectMapper().writeValueAsString(jsonMap);
-		
-		if ( result != null ) {
-			json = json.replace('"'+ResultsValuePlaceholder+'"', result);
-		}
-		
+		String json = PrettyJson.getJson(resp, sessCtx.getConfigPrettyMode());
 		pHandler.sendClientMsg(json);
 		
-		System.out.println("Response "+id+": "+(success ? "success" : "failure")+", "+
-			json.length()+" chars, "+t+"ms");
-		//System.out.println("\n"+json+"\n");
-		*/
+		System.out.println("Response "+resp.reqId+": "+
+			(resp.err == null ? "success" : "failure")+", "+
+			json.length()+" chars, "+resp.timer+"ms");
+		
+		if ( sessCtx.getConfigDebugMode() ) {
+			System.out.println("Response "+resp.reqId+" JSON:\n"+json);
+		}
 	}
 	
 	

@@ -3,14 +3,17 @@ package com.fabric.rexconnect.core;
 /*================================================================================================*/
 public class HeartbeatMonitor extends Thread {
 
+	private RexConnectClient vClient;
 	private long vTime;
 	private boolean vConnecting;
 	
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
-	public HeartbeatMonitor() {
+	public HeartbeatMonitor(SessionContext pSessCtx) throws Exception {
 		super();
+		
+		vClient = pSessCtx.createClient();
 		vTime = System.currentTimeMillis();
 		vConnecting = true;
 	}
@@ -30,10 +33,8 @@ public class HeartbeatMonitor extends Thread {
 		
 		try {
 			long t = System.currentTimeMillis();
-			//vGrem.execute(null, "g", null);
-			throw new Exception("No query was executed.");
+			vClient.execute("g", null);
 			
-			/*
 			if ( vConnecting ) {
 				System.out.println("Connected!");
 				System.out.println("");
@@ -44,7 +45,6 @@ public class HeartbeatMonitor extends Thread {
 			
 			vConnecting = false;
 			sleep(9000);
-			*/
 		}
 		catch ( Exception e ) {
 			vConnecting = true;

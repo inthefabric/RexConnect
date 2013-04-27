@@ -10,6 +10,7 @@ import org.quickserver.net.server.QuickServer;
 
 import com.fabric.rexconnect.core.CommandHandler;
 import com.fabric.rexconnect.core.HeartbeatMonitor;
+import com.fabric.rexconnect.core.SessionContext;
 import com.tinkerpop.rexster.client.RexsterClientTokens;
 import com.tinkerpop.rexster.protocol.msg.RexProChannel;
 
@@ -28,7 +29,7 @@ public class RexConnectServer {
 			
 			Properties props = buildRexConfig();
 			printHeader("Server", props);
-			
+
 			QuickServer qs = new QuickServer();
 			qs.setClientCommandHandler(CommandHandler.class.getName());
 			qs.setPort(8185);
@@ -37,7 +38,8 @@ public class RexConnectServer {
 			System.out.println("Server started.");
 			System.out.println("");
 			
-			HeartbeatMonitor hm = new HeartbeatMonitor();
+			SessionContext sc = new SessionContext(RexConnectServer.RexConfig);
+			HeartbeatMonitor hm = new HeartbeatMonitor(sc);
 			hm.start();
 		}
 		catch ( Exception e ) {

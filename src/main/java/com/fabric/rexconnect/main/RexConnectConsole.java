@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.Console;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -18,17 +17,11 @@ import com.fabric.rexconnect.core.commands.Command;
 import com.fabric.rexconnect.core.commands.CommandArgValidator;
 import com.fabric.rexconnect.core.io.PrettyJson;
 import com.fabric.rexconnect.core.io.TcpResponseCommand;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /*================================================================================================*/
 public class RexConnectConsole {
 
 	private static SessionContext vSessCtx;
-	private static ObjectMapper vObjMapper;
-	private static JsonFactory vJsonFactory;
 
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -42,10 +35,6 @@ public class RexConnectConsole {
 			RexConnectServer.printHeader("Console", props);
 
 			vSessCtx = new SessionContext(RexConnectServer.RexConfig);
-			vJsonFactory = new JsonFactory();
-
-			vObjMapper = new ObjectMapper();
-			vObjMapper.setSerializationInclusion(Include.NON_NULL);
 
 			while ( true ) {
 				String cmd = commandPrompt();
@@ -74,18 +63,9 @@ public class RexConnectConsole {
 		Command command = Command.build(vSessCtx, pCmd, pCmdArgs);
 		command.execute();
 		TcpResponseCommand resp = command.getResponse();
-
-		////
-
-		StringWriter sw = new StringWriter();
-		JsonGenerator jg = vJsonFactory.createJsonGenerator(sw);
-
-		if ( vSessCtx.getConfigPrettyMode() ) {
-			jg.setPrettyPrinter(new PrettyJson());
-		}
-
-		vObjMapper.writeValue(jg, resp);
-		System.out.println(sw.toString());
+		
+		String json = PrettyJson.getJson(resp, vSessCtx.getConfigPrettyMode());
+		System.out.println(json);
 		Thread.sleep(10); //helps to sync stderr output
 	}
 
