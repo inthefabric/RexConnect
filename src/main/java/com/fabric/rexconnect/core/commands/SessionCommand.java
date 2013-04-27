@@ -50,7 +50,8 @@ public class SessionCommand extends Command {
 		
 		if ( action.equals(START) ) {
 			rcc.startSession();
-			vResponse.result = vSessCtx.getSessionId().toString();
+			vResponse.results = new ArrayList<Object>();
+			vResponse.results.add(vSessCtx.getSessionId().toString());
 		}
 		
 		if ( action.equals(CLOSE) ) {

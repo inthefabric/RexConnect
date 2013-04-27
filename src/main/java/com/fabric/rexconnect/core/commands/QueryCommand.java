@@ -61,7 +61,7 @@ public class QueryCommand extends Command {
 		RexConnectClient rcc = vSessCtx.createClient();
 		
 		try {
-			vResponse.result = rcc.execute(vArgs.get(0), vParamMap);
+			vResponse.results = rcc.execute(vArgs.get(0), vParamMap);
 		}
 		catch ( Exception e ) {
 			rcc.close();
