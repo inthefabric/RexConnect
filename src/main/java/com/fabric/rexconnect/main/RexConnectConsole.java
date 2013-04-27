@@ -74,7 +74,7 @@ public class RexConnectConsole {
         StringWriter sw = new StringWriter();
         JsonGenerator jg = vJsonFactory.createJsonGenerator(sw);
         
-        if ( true ) {
+        if ( vSessCtx.getConfigPrettyMode() ) {
             jg.useDefaultPrettyPrinter();
         }
         

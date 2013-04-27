@@ -49,7 +49,7 @@ public class CommandArgValidator {
 				break;
 		}
 		
-		return vName+" ("+t+(vRequired ? "" : "; optional")+")";
+		return vName+" (arg #"+vIndex+"; "+t+(vRequired ? "" : "; optional")+")";
 	}
 	
 	
@@ -113,9 +113,8 @@ public class CommandArgValidator {
 	/*--------------------------------------------------------------------------------------------*/
 	public void throwEx(String pCommand, String pMessage, String pArg)
 																throws IllegalArgumentException {
-		throw new IllegalArgumentException(
-			"Invalid '"+vName+"' argument (index "+vIndex+") for command '"+pCommand+"': "+pMessage+". "+
-			"Argument value: '"+pArg+"'.");
+		throw new IllegalArgumentException("Invalid '"+vName+"' argument ('"+pArg+"') at index "+
+			vIndex+", for command '"+pCommand+"': "+pMessage+". ");
 	}
 	
 

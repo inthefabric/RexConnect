@@ -41,9 +41,19 @@ public abstract class Command {
 		}
 		catch ( IllegalArgumentException iae ) {
 			vResponse.err = iae.getMessage();
+			
+			if ( vSessCtx.getConfigDebugMode() ) {
+				System.err.println("// "+iae);
+				iae.printStackTrace(System.err);
+			}
 		}
 		catch ( Exception e ) {
 			vResponse.err = e.getClass().getName()+"> "+e.getMessage();
+
+			if ( vSessCtx.getConfigDebugMode() ) {
+				System.err.println("// "+e);
+				e.printStackTrace(System.err);
+			}
 		}
 		
 		vResponse.timer = System.currentTimeMillis()-t;

@@ -1,28 +1,22 @@
 package com.fabric.rexconnect.core;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.configuration.BaseConfiguration;
-
-import com.tinkerpop.rexster.protocol.msg.RexProMessage;
 
 /*================================================================================================*/
 public class SessionContext {
 	
 	private UUID vSessId;
 	private BaseConfiguration vRexsterClientConfig;
-	private List<RexProMessage> vReqList;
-	private List<RexProMessage> vRespList;
+	private boolean vPrettyMode;
+	private boolean vDebugMode;
 	
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
 	public SessionContext(BaseConfiguration pRexsterClientConfig) {
 		vRexsterClientConfig = pRexsterClientConfig;
-		vReqList = new ArrayList<RexProMessage>();
-		vRespList = new ArrayList<RexProMessage>();
 	}
 
 	
@@ -54,14 +48,26 @@ public class SessionContext {
 		return RexConnectClient.create(this, vRexsterClientConfig);
 	}
 	
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
-	public void addRequest(RexProMessage pMsg) {
-		vReqList.add(pMsg);
+	public void setConfigPrettyMode(boolean pPretty) {
+		vPrettyMode = pPretty;
 	}
 
 	/*--------------------------------------------------------------------------------------------*/
-	public void addResponse(RexProMessage pMsg) {
-		vRespList.add(pMsg);
+	public void setConfigDebugMode(boolean pDebug) {
+		vDebugMode = pDebug;
+	}
+	
+	/*--------------------------------------------------------------------------------------------*/
+	public boolean getConfigPrettyMode() {
+		return vPrettyMode;
+	}
+
+	/*--------------------------------------------------------------------------------------------*/
+	public boolean getConfigDebugMode() {
+		return vDebugMode;
 	}
 	
 }

@@ -55,13 +55,10 @@ public class ConfigCommand extends Command {
 		int mode = Validators.get(1).toInt(vArgs);
 		
 		if ( setting.equals(DEBUG) ) {
-			//mode
-			return;
+			vSessCtx.setConfigDebugMode(mode == DEBUG_MODE_ON);
 		}
-		
-		if ( setting.equals(PRETTY) ) {
-			//mode
-			return;
+		else if ( setting.equals(PRETTY) ) {
+			vSessCtx.setConfigPrettyMode(mode == PRETTY_MODE_ON);
 		}
 	}
 	

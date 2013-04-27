@@ -19,6 +19,11 @@ public class ExceptionCommand extends Command {
 		else {
 			vResponse.err = pException.getClass().getName()+"> "+pException.getMessage();
 		}
+
+		if ( vSessCtx.getConfigDebugMode() ) {
+			System.err.println("// "+pException);
+			pException.printStackTrace(System.err);
+		}
 	}
 	
 	/*--------------------------------------------------------------------------------------------*/

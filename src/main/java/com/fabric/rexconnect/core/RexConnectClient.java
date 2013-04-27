@@ -90,14 +90,23 @@ public class RexConnectClient extends RexsterClientDelegate {
 	// RexsterClientDelegate methods
 	/*--------------------------------------------------------------------------------------------*/
 	public void onRequest(RexProMessage pMsg) {
-		vSessCtx.addRequest(pMsg);
-		//System.out.println("Req : "+pMsg.sessionAsUUID());
+		printMessage("Request", pMsg);
 	}
 	
 	/*--------------------------------------------------------------------------------------------*/
 	public void onResponse(RexProMessage pMsg) {
-		vSessCtx.addResponse(pMsg);
-		//System.out.println("Resp: "+pMsg.sessionAsUUID());
+		printMessage("Response", pMsg);
+	}
+	
+	/*--------------------------------------------------------------------------------------------*/
+	protected void printMessage(String pTitle, RexProMessage pMsg) {
+		if ( !vSessCtx.getConfigDebugMode() ) {
+			return;
+		}
+		
+		String text = pMsg.getClass().getName()+
+			(pMsg.hasSession() ? "; Session="+pMsg.sessionAsUUID() : "");
+		System.out.println("// "+pTitle+": "+text);
 	}
 	
 	/*--------------------------------------------------------------------------------------------*/
