@@ -38,7 +38,10 @@ public class RexConnectServer {
 			System.out.println("Server started.");
 			System.out.println("");
 			
-			SessionContext sc = new SessionContext(RexConnectServer.RexConfig);
+			
+			BaseConfiguration hbConfig = (BaseConfiguration)RexConnectServer.RexConfig.clone();
+			hbConfig.setProperty(RexsterClientTokens.CONFIG_TIMEOUT_READ_MS, 1000);
+			SessionContext sc = new SessionContext(hbConfig);
 			HeartbeatMonitor hm = new HeartbeatMonitor(sc);
 			hm.start();
 		}

@@ -3,6 +3,7 @@ package com.fabric.rexconnect.core;
 /*================================================================================================*/
 public class HeartbeatMonitor extends Thread {
 
+	private SessionContext vSessCtx;
 	private RexConnectClient vClient;
 	private long vTime;
 	private boolean vConnecting;
@@ -12,8 +13,7 @@ public class HeartbeatMonitor extends Thread {
 	/*--------------------------------------------------------------------------------------------*/
 	public HeartbeatMonitor(SessionContext pSessCtx) throws Exception {
 		super();
-		
-		vClient = pSessCtx.createClient();
+		vSessCtx = pSessCtx;
 		vTime = System.currentTimeMillis();
 		vConnecting = true;
 	}
@@ -27,34 +27,46 @@ public class HeartbeatMonitor extends Thread {
 	
 	/*--------------------------------------------------------------------------------------------*/
 	private void heartbeat() {
+		boolean failed = false;
+		
 		if ( vConnecting ) {
 			System.out.println("Attempting to connect to RexPro...");
 		}
 		
 		try {
+			if ( vClient == null ) {
+				vClient = vSessCtx.createClient();
+			}
+			
 			long t = System.currentTimeMillis();
 			vClient.execute("g", null);
 			
 			if ( vConnecting ) {
 				System.out.println("Connected!");
-				System.out.println("");
+				System.out.println();
 			}
 
-			System.out.format("------------- Timer: %f days / Heartbeat: %dms\n",
+			System.out.format("# Life %f days,  beat %dms\n",
 				(t-vTime)/86400000.0, (System.currentTimeMillis()-t));
 			
 			vConnecting = false;
-			sleep(9000);
+			sleep(10000);
 		}
 		catch ( Exception e ) {
+			failed = true;
 			vConnecting = true;
 		}
 		
-		try {
-			sleep(1000);
-		}
-		catch ( InterruptedException e ) {
-			System.err.println("Heartbeat timer exception: "+e);
+		if ( failed ) {
+			try {
+				sleep(1000);
+				vClient.close();
+				vClient = null;
+			}
+			catch ( Exception e ) {
+				System.err.println("Heartbeat timer exception: "+e);
+				vClient = null;
+			}
 		}
 	}
     

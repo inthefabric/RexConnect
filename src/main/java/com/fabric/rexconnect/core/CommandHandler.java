@@ -12,6 +12,7 @@ import com.fabric.rexconnect.core.io.PrettyJson;
 import com.fabric.rexconnect.core.io.TcpRequest;
 import com.fabric.rexconnect.core.io.TcpRequestCommand;
 import com.fabric.rexconnect.core.io.TcpResponse;
+import com.fabric.rexconnect.core.io.TcpResponseCommand;
 import com.fabric.rexconnect.main.RexConnectServer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -26,9 +27,11 @@ public class CommandHandler implements ClientCommandHandler {
 		long t = System.currentTimeMillis();
 		TcpResponse resp = new TcpResponse();
 		SessionContext sessCtx = new SessionContext(RexConnectServer.RexConfig);
+		int cmdCount = -1;
 		
 		try {
 			TcpRequest req = new ObjectMapper().readValue(pRequest, TcpRequest.class);
+			cmdCount = req.cmdList.size();
 			
 			if ( req.sessId != null ) {
 				sessCtx.openSession(UUID.fromString(req.sessId));
@@ -37,9 +40,26 @@ public class CommandHandler implements ClientCommandHandler {
 			resp.reqId = req.reqId;
 			
 			for ( TcpRequestCommand reqCmd : req.cmdList ) {
+				if ( sessCtx.getConfigDebugMode() ) {
+					String cmdStr = reqCmd.cmd;
+					
+					for ( String arg : reqCmd.args ) {
+						cmdStr += " | "+arg;
+					}
+					
+					System.out.println("//  CMD: "+cmdStr);
+				}
+				
 				Command c = Command.build(sessCtx, reqCmd.cmd, reqCmd.args);
 				c.execute();
-				resp.cmdList.add(c.getResponse());
+				
+				TcpResponseCommand respCmd = c.getResponse();
+				resp.cmdList.add(respCmd);
+				
+				if ( sessCtx.getConfigDebugMode() ) {
+					String json = PrettyJson.getJson(respCmd, false);
+					System.out.println("//  JSON: "+json);
+				}
 			}
 		}
 		catch ( Exception e ) {
@@ -57,9 +77,13 @@ public class CommandHandler implements ClientCommandHandler {
 		String json = PrettyJson.getJson(resp, sessCtx.getConfigPrettyMode());
 		pHandler.sendClientMsg(json);
 		
-		System.out.println("Response "+resp.reqId+": "+
-			(resp.err == null ? "success" : "failure")+", "+
-			json.length()+" chars, "+resp.timer+"ms");
+		System.out.println(
+			"Resp "+resp.reqId+"  --  "+
+			(resp.err == null ? "success" : "failure")+
+			",  in "+pRequest.length()+
+			",  out "+json.length()+
+			",  cmd "+cmdCount+
+			",  t "+resp.timer+"ms");
 		
 		if ( sessCtx.getConfigDebugMode() ) {
 			System.out.println("Response "+resp.reqId+" JSON:\n"+json);
