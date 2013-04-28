@@ -16,8 +16,58 @@ The [Fabric](https://github.com/inthefabric) API, website, and other related pro
 ## Server
 The [RexConnectServer](https://github.com/inthefabric/RexConnect/blob/master/src/main/java/com/fabric/rexconnect/main/RexConnectServer.java) responds to TCP requests. These requests are send as JSON data, using RexConnect's [server request format](https://github.com/inthefabric/RexConnect/wiki/RexConnectServer-Request-Format). Requests can contain one or more commands, which execute sequentially. After the request's execution completes, RexConnect responds with JSON data in the [server response format](https://github.com/inthefabric/RexConnect/wiki/RexConnectServer-Response-Format). Responses include details and data for each command in the request.
 
+#### Usage
+To start the `RexConnectServer`, execute the "rexConnectServer" script (.sh or .bat) from the project's root directory.
+
+Applications written in any language can connect to `RexConnectServer` via TCP. See the [RexConnect C# Client](https://github.com/inthefabric/RexConnect/wiki/RexConnect-C%23-Client) Wiki page for details about [Fabric](https://github.com/inthefabric/Fabric)'s actual C# client implementation.
+
 ## Console
-[...]
+The [RexConnectConsole](https://github.com/inthefabric/RexConnect/blob/master/src/main/java/com/fabric/rexconnect/main/RexConnectConsole.java) provides an interactive interface with RexConnect. Each console prompt represents the execution of a single command. The command given at the main prompt leads to one or more sub-prompts, where the additional actions/arguments are provided. For clarity and ease-of-use, these sub-prompts provide information about the requested input.
+
+The responses provided by `RexConnectConsole` are exactly the same as the individual "command" responses provided by `RexConnectServer`.
+
+#### Usage
+To start the `RexConnectConsole`, execute the "rexConnectConsole" script (.sh or .bat) from the project's root directory.
+```c
+$ bin/rexConnectConsole.sh
+
+"            ---===##\    
+"                --==##\  
+"  ---===################>
+"                --==##/  
+"            ---===##/    
+
+RexConnect Console 0.3.0
+{rexpro_port=8184, rexpro_graph_name=FabricTest, rexconnect_port=8184, rexpro_hosts=rexster, rexpro_timeout_ms=120000}
+
+-------------------------------------------------------------
+
+# RexConnect> config
+#   ...setting (0; string): pretty
+#   ...mode (1; int): 1
+
+{
+    "timer": 0
+}
+
+# RexConnect> query
+#   ...script (0; string): g
+#   ...params (1; string; opt): 
+
+{
+    "timer": 592, 
+    "results": [
+        "titangraph[local:data/FabricTest]"
+    ]
+}
+
+# RexConnect> 
+```
+
+#### Markdown
+The console output was designed to "play nicely" with the "C" language formatting for GitHub Markdown. Start code blocks with...
+<pre>```c</pre>
+...to take advantage of the syntax highlighting.
 
 ## Documentation
 Please see the following Wiki pages for detailed RexConnect usage information:
