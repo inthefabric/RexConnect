@@ -1,8 +1,8 @@
 # RexConnect
 
 RexConnect is Java application that provides access to a [Rexster](https://github.com/tinkerpop/rexster)-supported graph database. RexConnect adds a powerful, language-agnostic service layer upon Rexster's [RexPro](https://github.com/tinkerpop/rexster/wiki/RexPro) interface. It provides methods of data access: server and console. The server mode responds to incoming TCP requests; the console mode offers an interactive interface.
-- Version: 0.3.0
-- License: Apache
+- Current version: 0.3.0
+- License: Apache License, Version 2.0
 
 #### Current Use Cases
 The [Fabric](https://github.com/inthefabric) API, website, and other related projects are written in C#. This makes it more difficult to interact with the Rexster Server, which is a Java project. RexConnect allows these projects to avoid REST/HTTP as a bottleneck, communicating at a lower level instead. Fabric currently uses three distinct graph database scenarios. These scenarios all currently use Titan 0.3.0 with Rexster 2.3.0.
