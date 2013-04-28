@@ -14,14 +14,17 @@ The [Fabric](https://github.com/inthefabric) API, website, and other related pro
 - **Remote Dev/Debug:** The first examples use a `RexConnectServer` running on the same computer as Rexster, but this is not necessary. During development or debugging, the RexConnect can connect to Rexster Server using the IP address of the Rexster Server computer. RexConnect (server and console) can accept multiple IP addresses for nodes in a graph cluster; these IPs are all passed to the internal RexPro client.
 
 ## Server
-The [RexConnectServer](https://github.com/inthefabric/RexConnect/blob/master/src/main/java/com/fabric/rexconnect/RexConnectServer.java) accepts [...]
+The [RexConnectServer](https://github.com/inthefabric/RexConnect/blob/master/src/main/java/com/fabric/rexconnect/main/RexConnectServer.java) responds to TCP requests. These requests are send as JSON data, using RexConnect's [server request format](https://github.com/inthefabric/RexConnect/wiki/RexConnectServer-Request-Format). Requests can contain one or more commands, which execute sequentially. After the request's execution completes, RexConnect responds with JSON data in the [server response format](https://github.com/inthefabric/RexConnect/wiki/RexConnectServer-Response-Format). Responses include details and data for each command in the request.
 
 ## Console
 [...]
 
 ## Documentation
-Please see the following pages for detailed RexConnect usage information:
+Please see the following Wiki pages for detailed RexConnect usage information:
 - [Server Request Format](https://github.com/inthefabric/RexConnect/wiki/RexConnectServer-Request-Format)
 - [Server Response Format](https://github.com/inthefabric/RexConnect/wiki/RexConnectServer-Response-Format)
 - [Request Commands](https://github.com/inthefabric/RexConnect/wiki/RexConnect-Commands)
 - [Usage Examples](https://github.com/inthefabric/RexConnect/wiki/RexConnect-Usage-Examples)
+- [RexConnect C# Client](https://github.com/inthefabric/RexConnect/wiki/RexConnect-C%23-Client)
+
+[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/9211f0a014961bb25e6329b4a86fc16a "githalytics.com")](http://githalytics.com/inthefabric/RexConnect)
