@@ -24,3 +24,4 @@ Please see the following pages for detailed RexConnect usage information:
 - [Server Request Format](https://github.com/inthefabric/RexConnect/wiki/RexConnectServer-Request-Format)
 - [Server Response Format](https://github.com/inthefabric/RexConnect/wiki/RexConnectServer-Response-Format)
 - [Request Commands](https://github.com/inthefabric/RexConnect/wiki/RexConnect-Commands)
+- [Usage Examples](https://github.com/inthefabric/RexConnect/wiki/RexConnect-Usage-Examples)
