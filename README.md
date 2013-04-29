@@ -78,5 +78,5 @@ Please see the following Wiki pages for detailed RexConnect usage information:
 - [Request Commands](https://github.com/inthefabric/RexConnect/wiki/RexConnect-Commands)
 - [Usage Examples](https://github.com/inthefabric/RexConnect/wiki/RexConnect-Usage-Examples)
 - [RexConnect C# Client](https://github.com/inthefabric/RexConnect/wiki/RexConnect-C%23-Client)
-
+- [Version Notes](https://github.com/inthefabric/RexConnect/wiki/RexConnect-Versions)
 [![githalytics.com alpha](https://cruel-carlota.pagodabox.com/9211f0a014961bb25e6329b4a86fc16a "githalytics.com")](http://githalytics.com/inthefabric/RexConnect)
