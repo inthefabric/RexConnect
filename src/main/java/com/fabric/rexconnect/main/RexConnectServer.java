@@ -7,6 +7,7 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.quickserver.net.server.QuickServer;
+import org.quickserver.util.xmlreader.QuickServerConfig;
 
 import com.fabric.rexconnect.core.CommandHandler;
 import com.fabric.rexconnect.core.HeartbeatMonitor;
@@ -29,15 +30,16 @@ public class RexConnectServer {
 			
 			Properties props = buildRexConfig();
 			printHeader("Server", props);
-
+			
 			QuickServer qs = new QuickServer();
 			qs.setClientCommandHandler(CommandHandler.class.getName());
-			qs.setPort(8185);
+			qs.setPort(Integer.parseInt(props.getProperty("rexconnect_port")));
 			qs.setName("RexConnectServer");
+			//qs.setMaxConnection(2); //TEST
+			qs.getConfig().getServerMode().setBlocking(true);
 			qs.startServer();
 			System.out.println("Server started.");
 			System.out.println("");
-			
 			
 			BaseConfiguration hbConfig = (BaseConfiguration)RexConnectServer.RexConfig.clone();
 			hbConfig.setProperty(RexsterClientTokens.CONFIG_TIMEOUT_READ_MS, 1000);
