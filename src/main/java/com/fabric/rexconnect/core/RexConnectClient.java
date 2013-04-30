@@ -70,7 +70,7 @@ public class RexConnectClient extends RexsterClientDelegate {
 	public SessionResponseMessage closeSession() throws RexProException, IOException {
 		SessionRequestMessage sr = new SessionRequestMessage();
 		sr.Channel = vConfig.getInt(RexsterClientTokens.CONFIG_CHANNEL);
-		sr.setSessionAsUUID(UUID.randomUUID());
+		sr.setSessionAsUUID(vSessCtx.getSessionId());
 		sr.setRequestAsUUID(UUID.randomUUID());
 		sr.metaSetGraphObjName(vConfig.getString(RexsterClientTokens.CONFIG_GRAPH_OBJECT_NAME));
 		sr.metaSetKillSession(true);
