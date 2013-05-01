@@ -313,6 +313,12 @@ public class RexsterClient {
     public void close() throws IOException {
         RexsterClientFactory.removeClient(this);
     }
+    
+    public void closeConnections() {
+        for ( NIOConnection c : this.connections ) {
+            c.closeSilently();
+        }
+    }
 
     private ScriptRequestMessage createNoSessionScriptRequest(final String script,
                                                               final Map<String, Object> scriptArguments) throws IOException, RexProException {
