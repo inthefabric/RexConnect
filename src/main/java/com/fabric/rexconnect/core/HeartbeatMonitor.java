@@ -4,7 +4,6 @@ package com.fabric.rexconnect.core;
 public class HeartbeatMonitor extends Thread {
 
 	private SessionContext vSessCtx;
-	private RexConnectClient vClient;
 	private long vTime;
 	private boolean vConnecting;
 	
@@ -34,12 +33,8 @@ public class HeartbeatMonitor extends Thread {
 		}
 		
 		try {
-			if ( vClient == null ) {
-				vClient = vSessCtx.createClient();
-			}
-			
 			long t = System.currentTimeMillis();
-			vClient.execute("g", null);
+			vSessCtx.getOrOpenClient().execute("g", null);
 			
 			if ( vConnecting ) {
 				System.out.println("Connected!");
@@ -60,12 +55,10 @@ public class HeartbeatMonitor extends Thread {
 		if ( failed ) {
 			try {
 				sleep(1000);
-				vClient.close();
-				vClient = null;
+				vSessCtx.closeClientIfExists();
 			}
 			catch ( Exception e ) {
 				System.err.println("Heartbeat timer exception: "+e);
-				vClient = null;
 			}
 		}
 	}

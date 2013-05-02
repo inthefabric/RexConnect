@@ -42,7 +42,7 @@ public class RexConnectClient extends RexsterClientDelegate {
 	}
 	
 	/*--------------------------------------------------------------------------------------------*/
-	public void close() throws RexProException, IOException {
+	public void closeConnections() throws RexProException, IOException {
 		vClient.closeConnections();
 		vClient.close();
 	}

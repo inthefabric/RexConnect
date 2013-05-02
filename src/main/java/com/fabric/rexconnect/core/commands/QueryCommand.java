@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.fabric.rexconnect.core.RexConnectClient;
 import com.fabric.rexconnect.core.SessionContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -58,17 +57,7 @@ public class QueryCommand extends Command {
 
 	/*--------------------------------------------------------------------------------------------*/
 	protected void executeInner() throws Exception {
-		RexConnectClient rcc = vSessCtx.createClient();
-		
-		try {
-			vResponse.results = rcc.execute(vArgs.get(0), vParamMap);
-		}
-		catch ( Exception e ) {
-			rcc.close();
-			throw e;
-		}
-
-		rcc.close();
+		vResponse.results = vSessCtx.getOrOpenClient().execute(vArgs.get(0), vParamMap);
 	}
 	
 }

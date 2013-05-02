@@ -11,6 +11,7 @@ public class SessionContext {
 	private BaseConfiguration vRexsterClientConfig;
 	private boolean vPrettyMode;
 	private boolean vDebugMode;
+	private RexConnectClient vPerRequestClient;
 	
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,8 +45,29 @@ public class SessionContext {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
-	public RexConnectClient createClient() throws Exception {
-		return RexConnectClient.create(this, vRexsterClientConfig);
+	public RexConnectClient getOrOpenClient() throws Exception {
+		if ( vPerRequestClient == null ) {
+			vPerRequestClient = RexConnectClient.create(this, vRexsterClientConfig);
+		}
+		
+		return vPerRequestClient;
+	}
+	
+	/*--------------------------------------------------------------------------------------------*/
+	public void closeClientIfExists() {
+		if ( vPerRequestClient == null ) {
+			return;
+		}
+		
+		try {
+			vPerRequestClient.closeConnections();
+		}
+		catch ( Exception e ) {
+			System.err.println("SessContext.Close Exception: "+e);
+			e.printStackTrace(System.err);
+		}
+		
+		vPerRequestClient = null;
 	}
 	
 

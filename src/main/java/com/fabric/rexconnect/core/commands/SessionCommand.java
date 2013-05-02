@@ -45,7 +45,7 @@ public class SessionCommand extends Command {
 	
 	/*--------------------------------------------------------------------------------------------*/
 	protected void executeInner() throws Exception {
-		RexConnectClient rcc = vSessCtx.createClient();
+		RexConnectClient rcc = vSessCtx.getOrOpenClient();
 		String action = vArgs.get(0);
 		
 		if ( action.equals(START) ) {
@@ -65,8 +65,6 @@ public class SessionCommand extends Command {
 		if ( action.equals(ROLLBACK) ) {
 			rcc.execute("g.rollback()", null);
 		}
-		
-		rcc.close();
 	}
 	
 }

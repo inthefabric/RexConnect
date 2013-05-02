@@ -70,7 +70,9 @@ public class CommandHandler implements ClientCommandHandler {
 			String msg = e.getMessage();
 			resp.err = (msg == null ? e.toString() : msg);
 		}
-
+		
+		sessCtx.closeClientIfExists();
+		
 		resp.sessId = (sessCtx.isSessionOpen() ? sessCtx.getSessionId().toString() : null);
 		resp.timer = System.currentTimeMillis()-t;
 		
