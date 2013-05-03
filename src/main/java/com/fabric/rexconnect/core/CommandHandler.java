@@ -56,6 +56,10 @@ public class CommandHandler implements ClientCommandHandler {
 				TcpResponseCommand respCmd = c.getResponse();
 				resp.cmdList.add(respCmd);
 				
+				if ( respCmd.err != null ) {
+					System.err.println("ResponseCommand error: "+reqCmd.cmd+" / "+respCmd.err);
+				}
+				
 				if ( sessCtx.getConfigDebugMode() ) {
 					String json = PrettyJson.getJson(respCmd, false);
 					System.out.println("//  JSON: "+json);
