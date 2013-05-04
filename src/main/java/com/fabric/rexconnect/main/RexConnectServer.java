@@ -35,7 +35,6 @@ public class RexConnectServer {
 			qs.setClientCommandHandler(CommandHandler.class.getName());
 			qs.setPort(Integer.parseInt(props.getProperty("rexconnect_port")));
 			qs.setName("RexConnectServer");
-			//qs.setMaxConnection(2); //TEST
 			qs.getConfig().getServerMode().setBlocking(true);
 			qs.startServer();
 			System.out.println("Server started.");
