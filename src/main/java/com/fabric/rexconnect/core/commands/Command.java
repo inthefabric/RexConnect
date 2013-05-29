@@ -13,6 +13,12 @@ public abstract class Command {
 	public static final String QUERY = "query";
 	public static final String CONFIG = "config";
 	
+	public static final String[] AllCommands = new String[] {
+		SESSION,
+		QUERY,
+		CONFIG
+	};
+	
 	protected final SessionContext vSessCtx;
 	protected final String vCommand;
 	protected List<String> vArgs;
@@ -99,8 +105,6 @@ public abstract class Command {
 			new IllegalArgumentException("Unknown command '"+pCommand+"'."));
 	}
 	
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
 	public static List<CommandArgValidator> argumentValidators(String pCommand)
 																throws IllegalArgumentException {
@@ -117,6 +121,24 @@ public abstract class Command {
 		}
 		
 		return new ArrayList<CommandArgValidator>();
+	}
+
+	
+	/*--------------------------------------------------------------------------------------------*/
+	public static List<String> availableArguments(String pCommand, int pArgIndex) {
+		if ( pCommand.equals(SESSION) ) {
+			switch ( pArgIndex ) {
+				case 0: return SessionCommand.Arg0s;
+			}
+		}
+
+		if ( pCommand.equals(CONFIG) ) {
+			switch ( pArgIndex ) {
+				case 0: return ConfigCommand.Arg0s;
+			}
+		}
+		
+		return new ArrayList<String>();
 	}
 	
 }

@@ -34,6 +34,11 @@ public class CommandArgValidator {
 		this(pIndex, pName, pType, pRequired);
 		vAcceptStrings = pAccepts;
 	}
+
+	/*--------------------------------------------------------------------------------------------*/
+	public int getIndex() {
+		return vIndex;
+	}
 	
 	/*--------------------------------------------------------------------------------------------*/
 	public String toPromptString() {

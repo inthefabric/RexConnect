@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Properties;
 
 import jline.console.ConsoleReader;
+import jline.console.completer.Completer;
+import jline.console.completer.StringsCompleter;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -22,6 +24,7 @@ public class RexConnectConsole {
 
 	private static SessionContext vSessCtx;
 	private static ConsoleReader vReader;
+	private static Completer vCurrentCompleter;
 
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,7 +46,7 @@ public class RexConnectConsole {
 				List<String> cmdArgs = new ArrayList<String>();
 
 				for ( CommandArgValidator v : cmdArgVals ) {
-					cmdArgs.add(commandArgPrompt(v));
+					cmdArgs.add(commandArgPrompt(cmd, v));
 				}
 				
 				vReader.println();
@@ -71,12 +74,28 @@ public class RexConnectConsole {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
+	private static void setCompleter(Completer pComp) {
+		if ( vCurrentCompleter != null ) {
+			vReader.removeCompleter(vCurrentCompleter);
+		}
+		
+		vCurrentCompleter = pComp;
+		vReader.addCompleter(vCurrentCompleter);
+	}
+	
+	/*--------------------------------------------------------------------------------------------*/
 	private static String commandPrompt() throws IOException {
+		setCompleter(new StringsCompleter(Command.AllCommands));
 		return vReader.readLine("# RexConnect> ");
 	}
 
 	/*--------------------------------------------------------------------------------------------*/
-	private static String commandArgPrompt(CommandArgValidator pArgVal) throws IOException {
+	private static String commandArgPrompt(String pCommand, CommandArgValidator pArgVal)
+																				throws IOException {
+		setCompleter(new StringsCompleter(
+			Command.availableArguments(pCommand, pArgVal.getIndex())
+		));
+		
 		return vReader.readLine("#   ..."+pArgVal.toPromptString()+": ");
 	}
 
