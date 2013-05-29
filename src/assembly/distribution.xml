@@ -7,6 +7,14 @@
     <fileSets>
         <fileSet>
             <fileMode>0775</fileMode>
+            <directory>target/${project.artifactId}-${project.version}-standalone</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>*.properties.template</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <fileMode>0775</fileMode>
             <directory>target/${project.artifactId}-${project.version}-standalone/bin</directory>
             <outputDirectory>bin</outputDirectory>
             <includes>
