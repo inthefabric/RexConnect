@@ -1,12 +1,11 @@
 package com.fabric.rexconnect.main;
 
-import java.io.BufferedReader;
-import java.io.Console;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
+import jline.console.ConsoleReader;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
@@ -22,6 +21,7 @@ import com.fabric.rexconnect.core.io.TcpResponseCommand;
 public class RexConnectConsole {
 
 	private static SessionContext vSessCtx;
+	private static ConsoleReader vReader;
 
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -35,6 +35,7 @@ public class RexConnectConsole {
 			RexConnectServer.printHeader("Console", props);
 
 			vSessCtx = new SessionContext(RexConnectServer.RexConfig);
+			vReader = new ConsoleReader();
 
 			while ( true ) {
 				String cmd = commandPrompt();
@@ -45,15 +46,15 @@ public class RexConnectConsole {
 					cmdArgs.add(commandArgPrompt(v));
 				}
 				
-				System.out.println();
+				vReader.println();
 				executeAndPrint(cmd, cmdArgs);
-				System.out.println();
+				vReader.println();
 			}
 		}
 		catch ( Exception e ) {
-			System.err.println();
-			System.err.println("RexConnectConsole Error:");
-			System.err.println();
+			vReader.println();
+			vReader.println("RexConnectConsole Error:");
+			vReader.println();
 			throw e;
 		}
 	}
@@ -63,35 +64,20 @@ public class RexConnectConsole {
 		Command command = Command.build(vSessCtx, pCmd, pCmdArgs);
 		command.execute();
 		TcpResponseCommand resp = command.getResponse();
-		
 		String json = PrettyJson.getJson(resp, vSessCtx.getConfigPrettyMode());
-		System.out.println(json);
-		Thread.sleep(10); //helps to sync stderr output
+		vReader.println(json);
 	}
 
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
 	private static String commandPrompt() throws IOException {
-		System.out.print("# RexConnect> ");
-		return readLine();
+		return vReader.readLine("# RexConnect> ");
 	}
 
 	/*--------------------------------------------------------------------------------------------*/
 	private static String commandArgPrompt(CommandArgValidator pArgVal) throws IOException {
-		System.out.print("#   ..."+pArgVal.toPromptString()+": ");
-		return readLine();
-	}
-
-	/*--------------------------------------------------------------------------------------------*/
-	private static String readLine() throws IOException {
-		Console c = System.console();
-
-		if ( c == null ) { //for Eclipse
-			return new BufferedReader(new InputStreamReader(System.in)).readLine();
-		}
-		
-		return c.readLine();
+		return vReader.readLine("#   ..."+pArgVal.toPromptString()+": ");
 	}
 
 }
