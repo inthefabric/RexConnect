@@ -1,13 +1,18 @@
 package com.fabric.rexconnect.main;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Properties;
 
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.quickserver.net.server.QuickServer;
-import org.quickserver.util.xmlreader.QuickServerConfig;
+import org.glassfish.grizzly.filterchain.FilterChainBuilder;
+import org.glassfish.grizzly.filterchain.TransportFilter;
+import org.glassfish.grizzly.nio.transport.TCPNIOTransport;
+import org.glassfish.grizzly.nio.transport.TCPNIOTransportBuilder;
+import org.glassfish.grizzly.utils.StringFilter;
 
 import com.fabric.rexconnect.core.CommandHandler;
 import com.fabric.rexconnect.core.HeartbeatMonitor;
@@ -30,19 +35,12 @@ public class RexConnectServer {
 			
 			Properties props = buildRexConfig();
 			printHeader("Server", props);
-			
-			QuickServer qs = new QuickServer();
-			qs.setClientCommandHandler(CommandHandler.class.getName());
-			qs.setPort(Integer.parseInt(props.getProperty("rexconnect_port")));
-			qs.setName("RexConnectServer");
-			qs.getConfig().getServerMode().setBlocking(true);
-			qs.startServer();
-			System.out.println("Server started.");
-			System.out.println("");
+			startGrizzlyServer(props);
 			
 			BaseConfiguration hbConfig = (BaseConfiguration)RexConnectServer.RexConfig.clone();
 			hbConfig.setProperty(RexsterClientTokens.CONFIG_TIMEOUT_READ_MS, 1000);
 			SessionContext sc = new SessionContext(hbConfig);
+			
 			HeartbeatMonitor hm = new HeartbeatMonitor(sc);
 			hm.start();
 		}
@@ -97,6 +95,29 @@ public class RexConnectServer {
 		System.out.println("");
 		System.out.println("-------------------------------------------------------------");
 		System.out.println("");
+    }
+
+    /*--------------------------------------------------------------------------------------------*/
+    private static void startGrizzlyServer(Properties pProps) throws IOException {
+		FilterChainBuilder fcb = FilterChainBuilder.stateless();
+		fcb.add(new TransportFilter());
+		fcb.add(new StringFilter(Charset.forName("UTF-8")));
+		fcb.add(new CommandHandler());
+		
+		String host = "localhost";
+		int port = Integer.parseInt(pProps.getProperty("rexconnect_port"));
+		int timeout = Integer.parseInt(pProps.getProperty("rexpro_timeout_ms"));
+		
+		final TCPNIOTransport trans = TCPNIOTransportBuilder.newInstance().build();
+		trans.setName("RexConnectServer");
+		trans.setProcessor(fcb.build());
+		trans.setConnectionTimeout(timeout);
+		trans.configureBlocking(false);
+		trans.bind(host, port);
+		trans.start();
+		
+		System.out.println("Server started at "+host+":"+port+".");
+		System.out.println();
     }
     
 }

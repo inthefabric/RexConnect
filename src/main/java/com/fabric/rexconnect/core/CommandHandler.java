@@ -1,13 +1,13 @@
 package com.fabric.rexconnect.core;
 
 import java.io.IOException;
-import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.quickserver.net.server.ClientCommandHandler;
-import org.quickserver.net.server.ClientHandler;
+import org.glassfish.grizzly.filterchain.BaseFilter;
+import org.glassfish.grizzly.filterchain.FilterChainContext;
+import org.glassfish.grizzly.filterchain.NextAction;
 
 import com.fabric.rexconnect.core.commands.Command;
 import com.fabric.rexconnect.core.commands.SessionCommand;
@@ -19,21 +19,21 @@ import com.fabric.rexconnect.core.io.TcpResponseCommand;
 import com.fabric.rexconnect.main.RexConnectServer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-/*================================================================================================*/
-public class CommandHandler implements ClientCommandHandler {
-	
+public class CommandHandler extends BaseFilter {
+
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
-	public void handleCommand(ClientHandler pHandler, String pRequest) 
-														throws SocketTimeoutException, IOException {
+    public NextAction handleRead(final FilterChainContext pFilterCtx) throws IOException {
 		long t = System.currentTimeMillis();
+		final String request = pFilterCtx.getMessage();
+		
 		TcpResponse resp = new TcpResponse();
 		SessionContext sessCtx = new SessionContext(RexConnectServer.RexConfig);
 		int cmdCount = -1;
 		
 		try {
-			TcpRequest req = new ObjectMapper().readValue(pRequest, TcpRequest.class);
+			TcpRequest req = new ObjectMapper().readValue(request, TcpRequest.class);
 			cmdCount = req.cmdList.size();
 			
 			if ( req.sessId != null ) {
@@ -51,7 +51,7 @@ public class CommandHandler implements ClientCommandHandler {
 		}
 		catch ( Exception e ) {
 			System.err.println("Exception "+resp.reqId+":\n"+
-				" - Request: "+pRequest+"\n - Details: "+e);
+				" - Request: "+request+"\n - Details: "+e);
 			e.printStackTrace(System.err);
 			
 			String msg = e.getMessage();
@@ -64,12 +64,12 @@ public class CommandHandler implements ClientCommandHandler {
 		resp.timer = System.currentTimeMillis()-t;
 		
 		String json = PrettyJson.getJson(resp, sessCtx.getConfigPrettyMode());
-		pHandler.sendClientMsg(json);
+		pFilterCtx.write(pFilterCtx.getAddress(), json, null);
 		
 		System.out.println(
 			"Resp "+resp.reqId+"  --  "+
 			(resp.err == null ? "success" : "FAILURE")+
-			",  in "+pRequest.length()+
+			",  in "+request.length()+
 			",  out "+json.length()+
 			",  cmd "+cmdCount+
 			",  t "+resp.timer+"ms");
@@ -77,6 +77,8 @@ public class CommandHandler implements ClientCommandHandler {
 		if ( sessCtx.getConfigDebugMode() ) {
 			System.out.println("Response "+resp.reqId+" JSON:\n"+json);
 		}
+		
+        return pFilterCtx.getStopAction();
 	}
 	
 	/*--------------------------------------------------------------------------------------------*/
@@ -140,16 +142,5 @@ public class CommandHandler implements ClientCommandHandler {
 		System.err.println("Session "+sessId+": Close with results="+
 			respCmd.results+", err="+respCmd.err);
 	}
-	
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////
-	/*--------------------------------------------------------------------------------------------*/
-	public void closingConnection(ClientHandler pHandler) throws IOException {}
-	
-	/*--------------------------------------------------------------------------------------------*/
-	public void gotConnected(ClientHandler pHandler) throws SocketTimeoutException, IOException {}
-	
-	/*--------------------------------------------------------------------------------------------*/
-	public void lostConnection(ClientHandler pHandler) throws IOException {}
     
 }

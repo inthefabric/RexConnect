@@ -28,20 +28,20 @@
             <artifactId>rexster-protocol</artifactId>
             <version>2.3.0</version>
         </dependency>
-		<dependency>
-      		<groupId>org.quickserver</groupId>
-      		<artifactId>quickserver</artifactId>
-      		<version>1.4.5</version>
+        <dependency>
+			<groupId>com.tinkerpop.blueprints</groupId>
+			<artifactId>blueprints-core</artifactId>
+			<version>2.3.0</version>
 		</dependency>
 		<dependency>
         	<groupId>org.codehaus.jackson</groupId>
         	<artifactId>jackson-mapper-asl</artifactId>
         	<version>1.9.12</version>
 		</dependency>
-        <dependency>
-			<groupId>com.tinkerpop.blueprints</groupId>
-			<artifactId>blueprints-core</artifactId>
-			<version>2.3.0</version>
+		<dependency>
+    		<groupId>org.glassfish.grizzly</groupId>
+    		<artifactId>grizzly-framework</artifactId>
+    		<version>2.3.2</version>
 		</dependency>
 		<dependency>
 			<groupId>jline</groupId>
