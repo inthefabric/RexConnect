@@ -86,7 +86,7 @@ public class RexConnectConsole {
 	/*--------------------------------------------------------------------------------------------*/
 	private static String commandPrompt() throws IOException {
 		setCompleter(new StringsCompleter(Command.AllCommands));
-		return vReader.readLine("# RexConnect> ");
+		return readLine("# RexConnect> ");
 	}
 
 	/*--------------------------------------------------------------------------------------------*/
@@ -96,7 +96,12 @@ public class RexConnectConsole {
 			Command.availableArguments(pCommand, pArgVal.getIndex())
 		));
 		
-		return vReader.readLine("#   ..."+pArgVal.toPromptString()+": ");
+		return readLine("#   ..."+pArgVal.toPromptString()+": ");
+	}
+
+	/*--------------------------------------------------------------------------------------------*/
+	private static String readLine(String pPrompt) throws IOException {
+		return vReader.readLine(pPrompt).trim();
 	}
 
 }
