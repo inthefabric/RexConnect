@@ -9,7 +9,6 @@ import jline.console.ConsoleReader;
 import jline.console.completer.Completer;
 import jline.console.completer.StringsCompleter;
 
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -22,6 +21,8 @@ import com.fabric.rexconnect.core.io.TcpResponseCommand;
 /*================================================================================================*/
 public class RexConnectConsole {
 
+    private static final Logger vLog = Logger.getLogger(RexConnectConsole.class);
+	
 	private static SessionContext vSessCtx;
 	private static ConsoleReader vReader;
 	private static Completer vCurrentCompleter;
@@ -31,13 +32,16 @@ public class RexConnectConsole {
 	/*--------------------------------------------------------------------------------------------*/
 	public static void main(String args[]) throws Exception {
 		try {
-			BasicConfigurator.configure();
-			Logger.getRootLogger().setLevel(Level.ERROR);
-
+			RexConnectServer.configureLog4j("console", vLog, Level.ERROR);
+			
 			Properties props = RexConnectServer.buildRexConfig();
-			RexConnectServer.printHeader("Console", props);
-
+			String header = RexConnectServer.getHeaderString("Console", props);
+			System.out.println(header);
+			vLog.info(header);
+			
 			vSessCtx = new SessionContext(RexConnectServer.RexConfig);
+			vSessCtx.setConsoleMode(true);
+			
 			vReader = new ConsoleReader();
 
 			while ( true ) {
@@ -57,6 +61,7 @@ public class RexConnectConsole {
 		catch ( Exception e ) {
 			vReader.println();
 			vReader.println("RexConnectConsole Error:");
+			vLog.fatal("RexConnectConsole Error:", e);
 			vReader.println();
 			throw e;
 		}
@@ -69,6 +74,7 @@ public class RexConnectConsole {
 		TcpResponseCommand resp = command.getResponse();
 		String json = PrettyJson.getJson(resp, vSessCtx.getConfigPrettyMode());
 		vReader.println(json);
+		vLog.info(json);
 	}
 
 
@@ -86,7 +92,11 @@ public class RexConnectConsole {
 	/*--------------------------------------------------------------------------------------------*/
 	private static String commandPrompt() throws IOException {
 		setCompleter(new StringsCompleter(Command.AllCommands));
-		return readLine("# RexConnect> ");
+		
+		final String prompt = "# RexConnect> ";
+		final String line = readLine(prompt);
+		vLog.info(prompt+line);
+		return line;
 	}
 
 	/*--------------------------------------------------------------------------------------------*/
@@ -96,7 +106,10 @@ public class RexConnectConsole {
 			Command.availableArguments(pCommand, pArgVal.getIndex())
 		));
 		
-		return readLine("#   ..."+pArgVal.toPromptString()+": ");
+		final String prompt = "#   ..."+pArgVal.toPromptString()+": ";
+		final String line = readLine(prompt);
+		vLog.info(prompt+line);
+		return line;
 	}
 
 	/*--------------------------------------------------------------------------------------------*/

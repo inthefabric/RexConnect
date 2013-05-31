@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.configuration.Configuration;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 import com.fabric.rexconnect.rexster.RexsterClient;
 import com.fabric.rexconnect.rexster.RexsterClientDelegate;
@@ -20,6 +22,8 @@ import com.tinkerpop.rexster.protocol.msg.SessionResponseMessage;
 /*================================================================================================*/
 public class RexConnectClient extends RexsterClientDelegate {
 
+    private static final Logger vLog = Logger.getLogger(RexConnectClient.class);
+    
 	private SessionContext vSessCtx;
 	private RexsterClient vClient;
 	private Configuration vConfig;
@@ -107,7 +111,7 @@ public class RexConnectClient extends RexsterClientDelegate {
 		
 		String text = pMsg.getClass().getName()+
 			(pMsg.hasSession() ? "; Session="+pMsg.sessionAsUUID() : "");
-		System.out.println("// "+pTitle+": "+text);
+		vSessCtx.logAndPrint("// "+pTitle+": "+text, vLog, Level.DEBUG);
 	}
 	
 	/*--------------------------------------------------------------------------------------------*/

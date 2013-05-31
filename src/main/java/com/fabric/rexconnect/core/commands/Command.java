@@ -3,12 +3,17 @@ package com.fabric.rexconnect.core.commands;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
 import com.fabric.rexconnect.core.SessionContext;
 import com.fabric.rexconnect.core.io.TcpResponseCommand;
 
 /*================================================================================================*/
 public abstract class Command {
-	
+
+    private static final Logger vLog = Logger.getLogger(Command.class);
+    
 	public static final String SESSION = "session";
 	public static final String QUERY = "query";
 	public static final String CONFIG = "config";
@@ -49,16 +54,14 @@ public abstract class Command {
 			vResponse.err = iae.getMessage();
 			
 			if ( vSessCtx.getConfigDebugMode() ) {
-				System.err.println("// "+iae);
-				iae.printStackTrace(System.err);
+				vSessCtx.logAndPrintErr("// "+iae, vLog, Level.ERROR, iae);
 			}
 		}
 		catch ( Exception e ) {
 			vResponse.err = e.getClass().getName()+"> "+e.getMessage();
 
 			if ( vSessCtx.getConfigDebugMode() ) {
-				System.err.println("// "+e);
-				e.printStackTrace(System.err);
+				vSessCtx.logAndPrintErr("// "+e, vLog, Level.ERROR, e);
 			}
 		}
 		

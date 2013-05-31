@@ -35,3 +35,4 @@ local.properties
 
 # Mac crap
 .DS_Store
+logs

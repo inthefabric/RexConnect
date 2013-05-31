@@ -1,8 +1,12 @@
 package com.fabric.rexconnect.core;
 
+import org.apache.log4j.Logger;
+
 /*================================================================================================*/
 public class HeartbeatMonitor extends Thread {
 
+    private static final Logger vLog = Logger.getLogger(HeartbeatMonitor.class);
+    
 	private SessionContext vSessCtx;
 	private long vTime;
 	private boolean vConnecting;
@@ -29,7 +33,7 @@ public class HeartbeatMonitor extends Thread {
 		boolean failed = false;
 		
 		if ( vConnecting ) {
-			System.out.println("Attempting to connect to RexPro...");
+			vLog.info("Attempting to connect to RexPro...");
 		}
 		
 		try {
@@ -37,12 +41,11 @@ public class HeartbeatMonitor extends Thread {
 			vSessCtx.getOrOpenClient().execute("g", null);
 			
 			if ( vConnecting ) {
-				System.out.println("Connected!");
-				System.out.println();
+				vLog.info("Connected!");
 			}
-
-			System.out.format("# Life %f days,  beat %dms\n",
-				(t-vTime)/86400000.0, (System.currentTimeMillis()-t));
+			
+			vLog.debug(String.format("# Life %f days,  beat %dms",
+				(t-vTime)/86400000.0, (System.currentTimeMillis()-t)));
 			
 			vConnecting = false;
 			sleep(10000);
@@ -58,7 +61,7 @@ public class HeartbeatMonitor extends Thread {
 				vSessCtx.closeClientIfExists();
 			}
 			catch ( Exception e ) {
-				System.err.println("Heartbeat timer exception: "+e);
+				vLog.error("Heartbeat timer exception: "+e);
 			}
 		}
 	}

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.log4j.Logger;
 import org.glassfish.grizzly.filterchain.BaseFilter;
 import org.glassfish.grizzly.filterchain.FilterChainContext;
 import org.glassfish.grizzly.filterchain.NextAction;
@@ -21,6 +22,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class CommandHandler extends BaseFilter {
 
+    private static final Logger vLog = Logger.getLogger(CommandHandler.class);
+    
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
@@ -50,9 +53,8 @@ public class CommandHandler extends BaseFilter {
 			}
 		}
 		catch ( Exception e ) {
-			System.err.println("Exception "+resp.reqId+":\n"+
-				" - Request: "+request+"\n - Details: "+e);
-			e.printStackTrace(System.err);
+			vLog.error("Exception "+resp.reqId+":\n"+
+				" - Request: "+request+"\n - Details: "+e, e);
 			
 			String msg = e.getMessage();
 			resp.err = (msg == null ? e.toString() : msg);
@@ -66,7 +68,7 @@ public class CommandHandler extends BaseFilter {
 		String json = PrettyJson.getJson(resp, sessCtx.getConfigPrettyMode());
 		pFilterCtx.write(pFilterCtx.getAddress(), json, null);
 		
-		System.out.println(
+		vLog.info(
 			"Resp "+resp.reqId+"  --  "+
 			(resp.err == null ? "success" : "FAILURE")+
 			",  in "+request.length()+
@@ -75,7 +77,7 @@ public class CommandHandler extends BaseFilter {
 			",  t "+resp.timer+"ms");
 		
 		if ( sessCtx.getConfigDebugMode() ) {
-			System.out.println("Response "+resp.reqId+" JSON:\n"+json);
+			vLog.debug("Response "+resp.reqId+" JSON:\n"+json);
 		}
 		
         return pFilterCtx.getStopAction();
@@ -91,7 +93,7 @@ public class CommandHandler extends BaseFilter {
 				cmdStr += " | "+arg;
 			}
 			
-			System.out.println("//  CMD: "+cmdStr);
+			vLog.debug("//  CMD: "+cmdStr);
 		}
 		
 		Command c = Command.build(pSessCtx, pReqCmd.cmd, pReqCmd.args);
@@ -100,13 +102,13 @@ public class CommandHandler extends BaseFilter {
 		
 		if ( pSessCtx.getConfigDebugMode() ) {
 			String json = PrettyJson.getJson(respCmd, false);
-			System.out.println("//  JSON: "+json);
+			vLog.debug("//  JSON: "+json);
 		}
 
 		if ( respCmd.err != null ) {
 			String errMsg = "Error for command '"+
 				pReqCmd.cmd+"' at index "+pIndex+": "+respCmd.err;
-			System.err.println(errMsg);
+			vLog.error(errMsg);
 			
 			if ( pSessCtx.isSessionOpen() ) {
 				cleanupFailedSession(pSessCtx);
@@ -128,7 +130,7 @@ public class CommandHandler extends BaseFilter {
 		c.execute();
 		
 		TcpResponseCommand respCmd = c.getResponse();
-		System.err.println("Session "+sessId+": Rollback with results="+
+		vLog.error("Session "+sessId+": Rollback with results="+
 			respCmd.results+", err="+respCmd.err);
 		
 		////
@@ -139,7 +141,7 @@ public class CommandHandler extends BaseFilter {
 		c.execute();
 		
 		respCmd = c.getResponse();
-		System.err.println("Session "+sessId+": Close with results="+
+		vLog.error("Session "+sessId+": Close with results="+
 			respCmd.results+", err="+respCmd.err);
 	}
     

@@ -1,4 +1,5 @@
 package com.fabric.rexconnect.main;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -8,6 +9,7 @@ import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.glassfish.grizzly.filterchain.FilterChainBuilder;
 import org.glassfish.grizzly.filterchain.TransportFilter;
 import org.glassfish.grizzly.nio.transport.TCPNIOTransport;
@@ -23,18 +25,19 @@ import com.tinkerpop.rexster.protocol.msg.RexProChannel;
 /*================================================================================================*/
 public class RexConnectServer {
 
-	public static BaseConfiguration RexConfig;
+    private static final Logger vLog = Logger.getLogger(RexConnectServer.class);
+
+    public static BaseConfiguration RexConfig;
 	
     
     ////////////////////////////////////////////////////////////////////////////////////////////////
     /*--------------------------------------------------------------------------------------------*/
     public static void main(String args[]) {
 		try {
-			BasicConfigurator.configure();
-			Logger.getRootLogger().setLevel(Level.WARN);
+			configureLog4j("server", vLog, Level.WARN);
 			
 			Properties props = buildRexConfig();
-			printHeader("Server", props);
+			vLog.info(getHeaderString("Server", props));
 			startGrizzlyServer(props);
 			
 			BaseConfiguration hbConfig = (BaseConfiguration)RexConnectServer.RexConfig.clone();
@@ -45,11 +48,29 @@ public class RexConnectServer {
 			hm.start();
 		}
 		catch ( Exception e ) {
-			System.err.println("RexConnectServer Exception: "+e);
+			vLog.fatal("RexConnectServer Exception: "+e);
 			e.printStackTrace();
 		}
     }
-    
+
+    /*--------------------------------------------------------------------------------------------*/
+    public static void configureLog4j(String pName, Logger pLog, Level pDefaultLevel)
+    																		throws IOException {
+		Properties props = new Properties();
+		String filename = "log4j."+pName+".properties";
+		
+		if ( new File(filename).exists() ) {
+			FileInputStream fs = new FileInputStream(filename);
+			props.load(fs);
+			PropertyConfigurator.configure(props);
+		}
+		else {
+			BasicConfigurator.configure();
+			pLog.info("No '"+filename+"' file found; using default configuration.");
+			Logger.getRootLogger().setLevel(pDefaultLevel);
+		}
+    }
+	
     /*--------------------------------------------------------------------------------------------*/
     public static Properties buildRexConfig() throws Exception {
 		final Properties props = new Properties();
@@ -81,20 +102,20 @@ public class RexConnectServer {
     }
 
     /*--------------------------------------------------------------------------------------------*/
-    public static void printHeader(String pTitle, Properties pProps) {
+    public static String getHeaderString(String pTitle, Properties pProps) {
     	//Some ASCII, in the Gremlin/Rexster tradition...
-		System.out.println("");
-		System.out.println("\"            ---===##\\    ");
-		System.out.println("\"                --==##\\  ");
-		System.out.println("\"  ---===################>");
-		System.out.println("\"                --==##/  ");
-		System.out.println("\"            ---===##/    ");
-		System.out.println("");
-		System.out.println("RexConnect "+pTitle+" 0.3.1");
-		System.out.println(pProps+"");
-		System.out.println("");
-		System.out.println("-------------------------------------------------------------");
-		System.out.println("");
+    	return "\n"+
+			"\"            ---===##\\    \n"+
+			"\"                --==##\\  \n"+
+			"\"  ---===################>\n"+
+			"\"                --==##/  \n"+
+			"\"            ---===##/    \n"+
+			"\n"+
+			"RexConnect "+pTitle+" 0.3.1\n"+
+			"\n"+
+			pProps+"\n"+
+			"\n"+
+			"-------------------------------------------------------------\n";
     }
 
     /*--------------------------------------------------------------------------------------------*/
@@ -116,8 +137,7 @@ public class RexConnectServer {
 		trans.bind(host, port);
 		trans.start();
 		
-		System.out.println("Server started at "+host+":"+port+".");
-		System.out.println();
+		vLog.info("Server started at "+host+":"+port+".");
     }
     
 }
