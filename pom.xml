@@ -6,7 +6,7 @@
 
 	<groupId>Fabric</groupId>
     <artifactId>RexConnect</artifactId>
-	<version>0.3.1</version>
+	<version>0.3.2</version>
     <name>RexConnect</name>
     <description>A session-based TCP connector between Fabric (.NET/C#) and Rexster Server. Also includes a console mode.</description>
     <inceptionYear>2013</inceptionYear>
