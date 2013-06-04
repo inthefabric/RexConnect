@@ -125,7 +125,6 @@ public class RexConnectServer {
 		fcb.add(new StringFilter(Charset.forName("UTF-8")));
 		fcb.add(new CommandHandler());
 		
-		String host = "localhost";
 		int port = Integer.parseInt(pProps.getProperty("rexconnect_port"));
 		int timeout = Integer.parseInt(pProps.getProperty("rexpro_timeout_ms"));
 		
@@ -134,10 +133,10 @@ public class RexConnectServer {
 		trans.setProcessor(fcb.build());
 		trans.setConnectionTimeout(timeout);
 		trans.configureBlocking(false);
-		trans.bind(host, port);
+		trans.bind(port);
 		trans.start();
 		
-		vLog.info("Server started at "+host+":"+port+".");
+		vLog.info("Server started at port "+port+".");
     }
     
 }
