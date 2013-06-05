@@ -19,6 +19,7 @@ import org.glassfish.grizzly.utils.StringFilter;
 import com.fabric.rexconnect.core.CommandHandler;
 import com.fabric.rexconnect.core.HeartbeatMonitor;
 import com.fabric.rexconnect.core.SessionContext;
+import com.fabric.rexconnect.rexster.RexsterClientFactory;
 import com.tinkerpop.rexster.client.RexsterClientTokens;
 import com.tinkerpop.rexster.protocol.msg.RexProChannel;
 
@@ -35,6 +36,7 @@ public class RexConnectServer {
     public static void main(String args[]) {
 		try {
 			configureLog4j("server", vLog, Level.WARN);
+			Logger.getLogger(RexsterClientFactory.class).setLevel(Level.WARN);
 			
 			Properties props = buildRexConfig();
 			vLog.info(getHeaderString("Server", props));
