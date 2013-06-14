@@ -19,6 +19,7 @@ import org.glassfish.grizzly.utils.StringFilter;
 import com.fabric.rexconnect.core.CommandHandler;
 import com.fabric.rexconnect.core.HeartbeatMonitor;
 import com.fabric.rexconnect.core.SessionContext;
+import com.tinkerpop.rexster.client.RexProClientFilter;
 import com.tinkerpop.rexster.client.RexsterClientFactory;
 import com.tinkerpop.rexster.client.RexsterClientTokens;
 import com.tinkerpop.rexster.protocol.msg.RexProChannel;
@@ -37,6 +38,7 @@ public class RexConnectServer {
 		try {
 			configureLog4j("server", vLog, Level.WARN);
 			Logger.getLogger(RexsterClientFactory.class).setLevel(Level.WARN);
+			Logger.getLogger(RexProClientFilter.class).setLevel(Level.INFO);
 			
 			Properties props = buildRexConfig();
 			vLog.info(getHeaderString("Server", props));
@@ -86,18 +88,18 @@ public class RexConnectServer {
 			addProperty(RexsterClientTokens.CONFIG_HOSTNAME,
 				props.getProperty("rexpro_hosts"));
 	
-			addProperty(RexsterClientTokens.CONFIG_MESSAGE_RETRY_WAIT_MS,
-				10);
-	
 			addProperty(RexsterClientTokens.CONFIG_GRAPH_NAME,
 				props.getProperty("rexpro_graph_name"));
-			
-			addProperty(RexsterClientTokens.CONFIG_CHANNEL,
-				RexProChannel.CHANNEL_MSGPACK);
-			
+
 			addProperty(RexsterClientTokens.CONFIG_TIMEOUT_READ_MS,
-				props.getProperty("rexpro_timeout_ms"));
-			
+					props.getProperty("rexpro_timeout_ms"));
+
+			addProperty(RexsterClientTokens.CONFIG_LANGUAGE, "groovy");
+			addProperty(RexsterClientTokens.CONFIG_CHANNEL, RexProChannel.CHANNEL_MSGPACK);
+			addProperty(RexsterClientTokens.CONFIG_GRAPH_OBJECT_NAME, "g");     
+			addProperty(RexsterClientTokens.CONFIG_TRANSACTION, true);
+			addProperty(RexsterClientTokens.CONFIG_MESSAGE_RETRY_WAIT_MS, 10);
+
 		}};
 		
 		return props;

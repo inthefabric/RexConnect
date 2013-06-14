@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -16,6 +15,7 @@ import com.tinkerpop.rexster.client.RexProException;
 import com.tinkerpop.rexster.client.RexsterClient;
 import com.tinkerpop.rexster.client.RexsterClientFactory;
 import com.tinkerpop.rexster.client.RexsterClientTokens;
+import com.tinkerpop.rexster.protocol.msg.ErrorResponseMessage;
 import com.tinkerpop.rexster.protocol.msg.MsgPackScriptResponseMessage;
 import com.tinkerpop.rexster.protocol.msg.RexProMessage;
 import com.tinkerpop.rexster.protocol.msg.ScriptRequestMessage;
@@ -55,8 +55,7 @@ public class RexConnectClient {
 	
 	/*--------------------------------------------------------------------------------------------*/
 	public void closeConnections() throws RexProException, IOException {
-		//vClient.closeConnections();
-		vClient.close();
+		vClient.closeClientAndConnections();
 	}
 	
 
@@ -69,55 +68,52 @@ public class RexConnectClient {
 		RexProMessage rpm = vClient.execute(srm);
 		printMessage("Response", rpm);
 
-		if ( !(rpm instanceof MsgPackScriptResponseMessage) ) {
-			throw new IOException("Invalid response type: "+rpm);
+		if ( rpm instanceof MsgPackScriptResponseMessage ) {
+			return parseMsgPackScriptResponse((MsgPackScriptResponseMessage)rpm);
 		}
 		
-		final MsgPackScriptResponseMessage mps = (MsgPackScriptResponseMessage)rpm;
-		final List<T> results = new ArrayList<T>();
-		Object result = mps.Results.get();
-		
-		if ( result instanceof Iterable ) {
-			final Iterator<T> iter = ((Iterable)result).iterator();
-			
-			while ( iter.hasNext() ) {
-				results.add(iter.next());
-			}
-		}
-		else {
-			results.add((T)result);
+		if ( rpm instanceof ErrorResponseMessage ) {
+			throwErrorResponse((ErrorResponseMessage)rpm);
 		}
 		
-		return results;
+		throw new IOException("Unknown response type: "+rpm);
 	}
 	
 	/*--------------------------------------------------------------------------------------------*/
 	public SessionResponseMessage startSession() throws RexProException, IOException {
-		SessionRequestMessage srm = buildSessionRequest();
+		SessionRequestMessage srm = buildSessionRequest(UUID.randomUUID());
 		
 		RexProMessage rpm = vClient.execute(srm);
-		
-		if ( !(rpm instanceof SessionResponseMessage) ) {
-			throw new IOException("Invalid response type: "+rpm);
-		}
 
-		vSessCtx.openSession(rpm.sessionAsUUID());
-		return (SessionResponseMessage)rpm;
+		if ( rpm instanceof SessionResponseMessage ) {
+			vSessCtx.openSession(rpm.sessionAsUUID());
+			return (SessionResponseMessage)rpm;
+		}
+		
+		if ( rpm instanceof ErrorResponseMessage ) {
+			throwErrorResponse((ErrorResponseMessage)rpm);
+		}
+		
+		throw new IOException("Unknown response type: "+rpm);
 	}
 	
 	/*--------------------------------------------------------------------------------------------*/
 	public SessionResponseMessage closeSession() throws RexProException, IOException {
-		SessionRequestMessage srm = buildSessionRequest();
+		SessionRequestMessage srm = buildSessionRequest(vSessCtx.getSessionId());
 		srm.metaSetKillSession(true);
 		
 		RexProMessage rpm = vClient.execute(srm);
-		
-		if ( !(rpm instanceof SessionResponseMessage) ) {
-			throw new IOException("Invalid response type: "+rpm);
+
+		if ( rpm instanceof SessionResponseMessage ) {
+			vSessCtx.closeSession();
+			return (SessionResponseMessage)rpm;
 		}
 		
-		vSessCtx.closeSession();
-		return (SessionResponseMessage)rpm;
+		if ( rpm instanceof ErrorResponseMessage ) {
+			throwErrorResponse((ErrorResponseMessage)rpm);
+		}
+		
+		throw new IOException("Unknown response type: "+rpm);
 	}
 	
 
@@ -153,13 +149,37 @@ public class RexConnectClient {
     }
 	
 	/*--------------------------------------------------------------------------------------------*/
-    protected SessionRequestMessage buildSessionRequest() {
+    protected SessionRequestMessage buildSessionRequest(UUID pSessionId) {
 		SessionRequestMessage srm = new SessionRequestMessage();
 		srm.Channel = vConfigChannel;
-		srm.setSessionAsUUID(vSessCtx.getSessionId());
+		srm.setSessionAsUUID(pSessionId);
 		srm.setRequestAsUUID(UUID.randomUUID());
 		srm.metaSetGraphObjName(vConfigGraphObjName);
 		return srm;
+	}
+
+	/*--------------------------------------------------------------------------------------------*/
+	private <T> List<T> parseMsgPackScriptResponse(MsgPackScriptResponseMessage pMsg) {
+		final List<T> results = new ArrayList<T>();
+		Object result = pMsg.Results.get();
+		
+		if ( result instanceof Iterable ) {
+			final Iterator<T> iter = ((Iterable)result).iterator();
+			
+			while ( iter.hasNext() ) {
+				results.add(iter.next());
+			}
+		}
+		else {
+			results.add((T)result);
+		}
+		
+		return results;
+	}
+
+	/*--------------------------------------------------------------------------------------------*/
+	private void throwErrorResponse(ErrorResponseMessage pMsg) throws RexProException {
+		throw new RexProException("[ErrorResponse "+pMsg.metaGetFlag()+"] "+pMsg.ErrorMessage);
 	}
 	
 	/*--------------------------------------------------------------------------------------------*/
