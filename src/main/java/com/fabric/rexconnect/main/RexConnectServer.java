@@ -19,7 +19,7 @@ import org.glassfish.grizzly.utils.StringFilter;
 import com.fabric.rexconnect.core.CommandHandler;
 import com.fabric.rexconnect.core.HeartbeatMonitor;
 import com.fabric.rexconnect.core.SessionContext;
-import com.fabric.rexconnect.rexster.RexsterClientFactory;
+import com.tinkerpop.rexster.client.RexsterClientFactory;
 import com.tinkerpop.rexster.client.RexsterClientTokens;
 import com.tinkerpop.rexster.protocol.msg.RexProChannel;
 
