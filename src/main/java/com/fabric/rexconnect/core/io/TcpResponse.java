@@ -3,7 +3,10 @@ package com.fabric.rexconnect.core.io;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 /*================================================================================================*/
+@XmlRootElement
 public class TcpResponse {
 	
 	public String reqId;

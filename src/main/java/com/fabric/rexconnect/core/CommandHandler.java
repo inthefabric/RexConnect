@@ -7,8 +7,6 @@ import java.util.UUID;
 
 import org.apache.log4j.Logger;
 import org.glassfish.grizzly.filterchain.BaseFilter;
-import org.glassfish.grizzly.filterchain.FilterChainContext;
-import org.glassfish.grizzly.filterchain.NextAction;
 
 import com.fabric.rexconnect.core.commands.Command;
 import com.fabric.rexconnect.core.commands.SessionCommand;
@@ -17,7 +15,6 @@ import com.fabric.rexconnect.core.io.TcpRequest;
 import com.fabric.rexconnect.core.io.TcpRequestCommand;
 import com.fabric.rexconnect.core.io.TcpResponse;
 import com.fabric.rexconnect.core.io.TcpResponseCommand;
-import com.fabric.rexconnect.main.RexConnectServer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class CommandHandler extends BaseFilter {
@@ -27,20 +24,16 @@ public class CommandHandler extends BaseFilter {
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
-    public NextAction handleRead(final FilterChainContext pFilterCtx) throws IOException {
+    public static TcpResponse getResponse(SessionContext pSessCtx, String pRequestJson)
+    																			throws IOException {
 		long t = System.currentTimeMillis();
-		final String request = pFilterCtx.getMessage();
-		
 		TcpResponse resp = new TcpResponse();
-		SessionContext sessCtx = new SessionContext(RexConnectServer.RexConfig);
-		int cmdCount = -1;
 		
 		try {
-			TcpRequest req = new ObjectMapper().readValue(request, TcpRequest.class);
-			cmdCount = req.cmdList.size();
+			TcpRequest req = new ObjectMapper().readValue(pRequestJson, TcpRequest.class);
 			
 			if ( req.sessId != null ) {
-				sessCtx.openSession(UUID.fromString(req.sessId));
+				pSessCtx.openSession(UUID.fromString(req.sessId));
 			}
 			
 			resp.reqId = req.reqId;
@@ -48,44 +41,29 @@ public class CommandHandler extends BaseFilter {
 			
 			for ( int i = 0 ; i < n ; ++i ) {
 				resp.cmdList.add(
-					executeRequestCommand(sessCtx, req.cmdList.get(i), i)
+					executeRequestCommand(pSessCtx, req.cmdList.get(i), i)
 				);
 			}
 		}
 		catch ( Exception e ) {
 			vLog.error("Exception "+resp.reqId+":\n"+
-				" - Request: "+request+"\n - Details: "+e, e);
+				" - Request: "+pRequestJson+"\n - Details: "+e, e);
 			
 			String msg = e.getMessage();
 			resp.err = (msg == null ? e.toString() : msg);
 		}
 		
-		sessCtx.closeClientIfExists();
+		pSessCtx.closeClientIfExists();
 		
-		resp.sessId = (sessCtx.isSessionOpen() ? sessCtx.getSessionId().toString() : null);
+		resp.sessId = (pSessCtx.isSessionOpen() ? pSessCtx.getSessionId().toString() : null);
 		resp.timer = System.currentTimeMillis()-t;
-		
-		String json = PrettyJson.getJson(resp, sessCtx.getConfigPrettyMode());
-		pFilterCtx.write(pFilterCtx.getAddress(), json, null);
-		
-		vLog.info(
-			"Resp "+resp.reqId+"  --  "+
-			(resp.err == null ? "success" : "FAILURE")+
-			",  in "+request.length()+
-			",  out "+json.length()+
-			",  cmd "+cmdCount+
-			",  t "+resp.timer+"ms");
-		
-		if ( sessCtx.getConfigDebugMode() ) {
-			vLog.debug("Response "+resp.reqId+" JSON:\n"+json);
-		}
-		
-        return pFilterCtx.getStopAction();
+		return resp;
 	}
 	
 	/*--------------------------------------------------------------------------------------------*/
-	private TcpResponseCommand executeRequestCommand(SessionContext pSessCtx,
+	private static TcpResponseCommand executeRequestCommand(SessionContext pSessCtx,
 										TcpRequestCommand pReqCmd, int pIndex) throws IOException {
+		vLog.warn(" - A");
 		if ( pSessCtx.getConfigDebugMode() ) {
 			String cmdStr = pReqCmd.cmd;
 			
@@ -96,9 +74,11 @@ public class CommandHandler extends BaseFilter {
 			vLog.debug("//  CMD: "+cmdStr);
 		}
 		
+		vLog.warn(" - B");
 		Command c = Command.build(pSessCtx, pReqCmd.cmd, pReqCmd.args);
 		c.execute();
 		TcpResponseCommand respCmd = c.getResponse();
+		vLog.warn(" - C");
 		
 		if ( pSessCtx.getConfigDebugMode() ) {
 			String json = PrettyJson.getJson(respCmd, false);
@@ -117,11 +97,12 @@ public class CommandHandler extends BaseFilter {
 			throw new IOException(errMsg);
 		}
 		
+		vLog.warn(" - D");
 		return respCmd;
 	}
 	
 	/*--------------------------------------------------------------------------------------------*/
-	private void cleanupFailedSession(SessionContext pSessCtx) {
+	private static void cleanupFailedSession(SessionContext pSessCtx) {
 		String sessId = pSessCtx.getSessionId().toString();
 		
 		List<String> args = new ArrayList<String>();
