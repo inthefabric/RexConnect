@@ -26,11 +26,15 @@ public class CommandHandler extends BaseFilter {
 	/*--------------------------------------------------------------------------------------------*/
     public static TcpResponse getResponse(SessionContext pSessCtx, String pRequestJson)
     																			throws IOException {
-		long t = System.currentTimeMillis();
+    	long t = System.currentTimeMillis();
+    	long t2 = 0, t2_5 = 0, t3 = 0, t4 = 0, t5 = 0, t6 = 0, t7 = 0;
 		TcpResponse resp = new TcpResponse();
 		
 		try {
-			TcpRequest req = new ObjectMapper().readValue(pRequestJson, TcpRequest.class);
+			ObjectMapper om = new ObjectMapper();
+	    	t2 = System.currentTimeMillis();
+			TcpRequest req = om.readValue(pRequestJson, TcpRequest.class);
+			t2_5 = System.currentTimeMillis();
 			
 			if ( req.sessId != null ) {
 				pSessCtx.openSession(UUID.fromString(req.sessId));
@@ -38,12 +42,15 @@ public class CommandHandler extends BaseFilter {
 			
 			resp.reqId = req.reqId;
 			int n = req.cmdList.size();
+			t3 = System.currentTimeMillis();
 			
 			for ( int i = 0 ; i < n ; ++i ) {
 				resp.cmdList.add(
 					executeRequestCommand(pSessCtx, req.cmdList.get(i), i)
 				);
 			}
+			
+			t4 = System.currentTimeMillis();
 		}
 		catch ( Exception e ) {
 			vLog.error("Exception "+resp.reqId+":\n"+
@@ -53,17 +60,21 @@ public class CommandHandler extends BaseFilter {
 			resp.err = (msg == null ? e.toString() : msg);
 		}
 		
+		t5 = System.currentTimeMillis();
 		pSessCtx.closeClientIfExists();
+		t6 = System.currentTimeMillis();
 		
 		resp.sessId = (pSessCtx.isSessionOpen() ? pSessCtx.getSessionId().toString() : null);
+		t7 = System.currentTimeMillis();
 		resp.timer = System.currentTimeMillis()-t;
+		vLog.warn("Timer 2:"+(t2-t)+" | 2.5:"+(t2_5-t)+" | 3:"+(t3-t)+" | 4:"+(t4-t)+
+				" | 5:"+(t5-t)+" | 6:"+(t6-t)+" | 7:"+(t7-t));
 		return resp;
 	}
 	
 	/*--------------------------------------------------------------------------------------------*/
 	private static TcpResponseCommand executeRequestCommand(SessionContext pSessCtx,
 										TcpRequestCommand pReqCmd, int pIndex) throws IOException {
-		vLog.warn(" - A");
 		if ( pSessCtx.getConfigDebugMode() ) {
 			String cmdStr = pReqCmd.cmd;
 			
@@ -74,11 +85,9 @@ public class CommandHandler extends BaseFilter {
 			vLog.debug("//  CMD: "+cmdStr);
 		}
 		
-		vLog.warn(" - B");
 		Command c = Command.build(pSessCtx, pReqCmd.cmd, pReqCmd.args);
 		c.execute();
 		TcpResponseCommand respCmd = c.getResponse();
-		vLog.warn(" - C");
 		
 		if ( pSessCtx.getConfigDebugMode() ) {
 			String json = PrettyJson.getJson(respCmd, false);
@@ -97,7 +106,6 @@ public class CommandHandler extends BaseFilter {
 			throw new IOException(errMsg);
 		}
 		
-		vLog.warn(" - D");
 		return respCmd;
 	}
 	
