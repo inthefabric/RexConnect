@@ -6,13 +6,18 @@ import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import com.tinkerpop.blueprints.Graph;
+import com.tinkerpop.rexster.RexsterResourceContext;
+
 /*================================================================================================*/
 public class SessionContext {
 
     private static final Logger vLog = Logger.getLogger(SessionContext.class);
 	
 	private UUID vSessId;
-	private BaseConfiguration vRexsterClientConfig;
+	private final BaseConfiguration vRexsterClientConfig;
+	private final RexsterResourceContext vRexResCtx;
+	private final Graph vGraph;
 	private boolean vConsoleMode;
 	private boolean vPrettyMode;
 	private boolean vDebugMode;
@@ -21,8 +26,18 @@ public class SessionContext {
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
-	public SessionContext(BaseConfiguration pRexsterClientConfig) {
+	public SessionContext(final BaseConfiguration pRexsterClientConfig) {
 		vRexsterClientConfig = pRexsterClientConfig;
+		vRexResCtx = null;
+		vGraph = null;
+	}
+	
+	/*--------------------------------------------------------------------------------------------*/
+	public SessionContext(final BaseConfiguration pRexsterClientConfig, 
+			final RexsterResourceContext pRexResCtx, final Graph pGraph) {
+		vRexsterClientConfig = pRexsterClientConfig;
+		vRexResCtx = pRexResCtx;
+		vGraph = pGraph;
 	}
 
 	
@@ -45,6 +60,18 @@ public class SessionContext {
 	/*--------------------------------------------------------------------------------------------*/
 	public Boolean isSessionOpen() {
 		return (vSessId != null);
+	}
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+	/*--------------------------------------------------------------------------------------------*/
+	public RexsterResourceContext getRexsterResourceContext() {
+		return vRexResCtx;
+	}
+	
+	/*--------------------------------------------------------------------------------------------*/
+	public Graph getGraph() {
+		return vGraph;
 	}
 
 

@@ -55,7 +55,7 @@ public class RexConnectExtension extends AbstractRexsterExtension {
 	@ExtensionDefinition(extensionPoint=ExtensionPoint.GRAPH)
 	public ExtensionResponse execute(@RexsterContext RexsterResourceContext pCtx,
 			@RexsterContext Graph pGraph, @ExtensionRequestParameter(name="req") String pReqJson) {
-		SessionContext sessCtx = new SessionContext(RexConnectServer.RexConfig);
+		SessionContext sessCtx = new SessionContext(RexConnectServer.RexConfig, pCtx, pGraph);
 		
 		try {
 			TcpResponse resp = CommandHandler.getResponse(sessCtx, pReqJson);
