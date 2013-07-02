@@ -1,13 +1,22 @@
 package com.fabric.rexconnect.main;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Properties;
+
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.kohsuke.MetaInfServices;
+import org.glassfish.grizzly.filterchain.FilterChainBuilder;
+import org.glassfish.grizzly.filterchain.TransportFilter;
+import org.glassfish.grizzly.nio.transport.TCPNIOTransport;
+import org.glassfish.grizzly.nio.transport.TCPNIOTransportBuilder;
+import org.glassfish.grizzly.utils.StringFilter;
 
 import com.fabric.rexconnect.core.CommandHandler;
+import com.fabric.rexconnect.core.RequestFilter;
 import com.fabric.rexconnect.core.SessionContext;
 import com.fabric.rexconnect.core.io.PrettyJson;
 import com.fabric.rexconnect.core.io.TcpResponse;
@@ -22,7 +31,6 @@ import com.tinkerpop.rexster.extension.ExtensionResponse;
 import com.tinkerpop.rexster.extension.RexsterContext;
 
 /*================================================================================================*/
-@MetaInfServices
 @ExtensionNaming(namespace="fab", name="rexconn")
 public class RexConnectExtension extends AbstractRexsterExtension {
 
@@ -38,9 +46,9 @@ public class RexConnectExtension extends AbstractRexsterExtension {
     	
     	vLog = Logger.getLogger(RexConnectExtension.class);
 		RexConnectServer.configureLog4j("extension", vLog, Level.WARN);
-		//Logger.getLogger(RexsterClientFactory.class).setLevel(Level.WARN);
-		//Logger.getLogger(RexProClientFilter.class).setLevel(Level.INFO);
-    	RexConnectServer.buildRexConfig();
+		
+    	Properties props = RexConnectServer.buildRexConfig();
+    	startGrizzlyServer(props);
     }
 
 	/*--------------------------------------------------------------------------------------------*/
@@ -59,5 +67,26 @@ public class RexConnectExtension extends AbstractRexsterExtension {
 			return ExtensionResponse.error("Failed: "+e);
 		}
 	}
+
+    /*--------------------------------------------------------------------------------------------*/
+    private static void startGrizzlyServer(Properties pProps) throws IOException {
+		FilterChainBuilder fcb = FilterChainBuilder.stateless();
+		fcb.add(new TransportFilter());
+		fcb.add(new StringFilter(Charset.forName("UTF-8")));
+		fcb.add(new RequestFilter());
+		
+		int port = Integer.parseInt(pProps.getProperty("rexconnect_port"));
+		int timeout = Integer.parseInt(pProps.getProperty("rexpro_timeout_ms"));
+		
+		final TCPNIOTransport trans = TCPNIOTransportBuilder.newInstance().build();
+		trans.setName("RexConnectExtension");
+		trans.setProcessor(fcb.build());
+		trans.setConnectionTimeout(timeout);
+		trans.configureBlocking(false);
+		trans.bind(port);
+		trans.start();
+		
+		vLog.info("RexConnect TCP server started at port "+port+".");
+    }
 	
 }

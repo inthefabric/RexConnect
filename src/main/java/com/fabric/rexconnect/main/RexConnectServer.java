@@ -16,8 +16,8 @@ import org.glassfish.grizzly.nio.transport.TCPNIOTransport;
 import org.glassfish.grizzly.nio.transport.TCPNIOTransportBuilder;
 import org.glassfish.grizzly.utils.StringFilter;
 
-import com.fabric.rexconnect.core.CommandHandler;
 import com.fabric.rexconnect.core.HeartbeatMonitor;
+import com.fabric.rexconnect.core.RequestFilter;
 import com.fabric.rexconnect.core.SessionContext;
 import com.tinkerpop.rexster.client.RexProClientFilter;
 import com.tinkerpop.rexster.client.RexsterClientFactory;
@@ -127,7 +127,7 @@ public class RexConnectServer {
 		FilterChainBuilder fcb = FilterChainBuilder.stateless();
 		fcb.add(new TransportFilter());
 		fcb.add(new StringFilter(Charset.forName("UTF-8")));
-		fcb.add(new CommandHandler());
+		fcb.add(new RequestFilter());
 		
 		int port = Integer.parseInt(pProps.getProperty("rexconnect_port"));
 		int timeout = Integer.parseInt(pProps.getProperty("rexpro_timeout_ms"));
