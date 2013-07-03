@@ -40,12 +40,6 @@ public class CommandHandler {
 			int n = req.cmdList.size();
 			
 			for ( int i = 0 ; i < n ; ++i ) {
-				vLog.warn("TEST A: "+resp);
-				vLog.warn("TEST B: "+resp.cmdList);
-				vLog.warn("TEST C: "+req);
-				vLog.warn("TEST D: "+req.cmdList);
-				vLog.warn("TEST E: "+pSessCtx);
-				
 				resp.cmdList.add(
 					executeRequestCommand(pSessCtx, req.cmdList.get(i), i)
 				);
