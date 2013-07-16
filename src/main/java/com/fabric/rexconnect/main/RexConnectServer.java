@@ -22,12 +22,14 @@ import com.fabric.rexconnect.core.SessionContext;
 import com.tinkerpop.rexster.client.RexProClientFilter;
 import com.tinkerpop.rexster.client.RexsterClientFactory;
 import com.tinkerpop.rexster.client.RexsterClientTokens;
-import com.tinkerpop.rexster.protocol.msg.RexProChannel;
 
 /*================================================================================================*/
 public class RexConnectServer {
 
     private static final Logger vLog = Logger.getLogger(RexConnectServer.class);
+    
+    public static final byte RexProMsgPack = 0;
+    public static final byte RexProJson = 1;
 
     public static BaseConfiguration RexConfig;
 	
@@ -95,7 +97,7 @@ public class RexConnectServer {
 					props.getProperty("rexpro_timeout_ms"));
 
 			addProperty(RexsterClientTokens.CONFIG_LANGUAGE, "groovy");
-			addProperty(RexsterClientTokens.CONFIG_CHANNEL, RexProChannel.CHANNEL_MSGPACK);
+			addProperty(RexsterClientTokens.CONFIG_SERIALIZER, RexProMsgPack);
 			addProperty(RexsterClientTokens.CONFIG_GRAPH_OBJECT_NAME, "g");     
 			addProperty(RexsterClientTokens.CONFIG_TRANSACTION, true);
 			addProperty(RexsterClientTokens.CONFIG_MESSAGE_RETRY_WAIT_MS, 10);

@@ -16,9 +16,9 @@ import com.tinkerpop.rexster.client.RexsterClient;
 import com.tinkerpop.rexster.client.RexsterClientFactory;
 import com.tinkerpop.rexster.client.RexsterClientTokens;
 import com.tinkerpop.rexster.protocol.msg.ErrorResponseMessage;
-import com.tinkerpop.rexster.protocol.msg.MsgPackScriptResponseMessage;
 import com.tinkerpop.rexster.protocol.msg.RexProMessage;
 import com.tinkerpop.rexster.protocol.msg.ScriptRequestMessage;
+import com.tinkerpop.rexster.protocol.msg.ScriptResponseMessage;
 import com.tinkerpop.rexster.protocol.msg.SessionRequestMessage;
 import com.tinkerpop.rexster.protocol.msg.SessionResponseMessage;
 
@@ -34,7 +34,6 @@ public class RexConnectClient {
     private final String vConfigLang;
     private final String vConfigGraphName;
     private final String vConfigGraphObjName;
-    private final int vConfigChannel;
     private final boolean vConfigTx;
 	
 	
@@ -49,7 +48,6 @@ public class RexConnectClient {
         vConfigLang = vConfig.getString(RexsterClientTokens.CONFIG_LANGUAGE);
         vConfigGraphName = vConfig.getString(RexsterClientTokens.CONFIG_GRAPH_NAME);
         vConfigGraphObjName = vConfig.getString(RexsterClientTokens.CONFIG_GRAPH_OBJECT_NAME);
-        vConfigChannel = vConfig.getInt(RexsterClientTokens.CONFIG_CHANNEL);
         vConfigTx = vConfig.getBoolean(RexsterClientTokens.CONFIG_TRANSACTION);
 	}
 	
@@ -68,8 +66,8 @@ public class RexConnectClient {
 		RexProMessage rpm = vClient.execute(srm);
 		printMessage("Response", rpm);
 
-		if ( rpm instanceof MsgPackScriptResponseMessage ) {
-			return parseMsgPackScriptResponse((MsgPackScriptResponseMessage)rpm);
+		if ( rpm instanceof ScriptResponseMessage ) {
+			return parseScriptResponse((ScriptResponseMessage)rpm);
 		}
 		
 		if ( rpm instanceof ErrorResponseMessage ) {
@@ -126,7 +124,6 @@ public class RexConnectClient {
         srm.LanguageName = vConfigLang;
         srm.metaSetGraphName(vConfigGraphName);
         srm.metaSetGraphObjName(vConfigGraphObjName);
-        srm.metaSetChannel(vConfigChannel);
         srm.metaSetTransaction(vConfigTx);
         srm.setRequestAsUUID(UUID.randomUUID());
 
@@ -151,7 +148,6 @@ public class RexConnectClient {
 	/*--------------------------------------------------------------------------------------------*/
     protected SessionRequestMessage buildSessionRequest(UUID pSessionId) {
 		SessionRequestMessage srm = new SessionRequestMessage();
-		srm.Channel = vConfigChannel;
 		srm.setSessionAsUUID(pSessionId);
 		srm.setRequestAsUUID(UUID.randomUUID());
 		srm.metaSetGraphObjName(vConfigGraphObjName);
@@ -159,7 +155,7 @@ public class RexConnectClient {
 	}
 
 	/*--------------------------------------------------------------------------------------------*/
-	private <T> List<T> parseMsgPackScriptResponse(MsgPackScriptResponseMessage pMsg) {
+	private <T> List<T> parseScriptResponse(ScriptResponseMessage pMsg) {
 		final List<T> results = new ArrayList<T>();
 		Object result = pMsg.Results.get();
 		
