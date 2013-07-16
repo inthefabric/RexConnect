@@ -31,7 +31,7 @@ import com.tinkerpop.rexster.extension.ExtensionResponse;
 import com.tinkerpop.rexster.extension.RexsterContext;
 
 /*================================================================================================*/
-@ExtensionNaming(namespace="fab", name="rexconn")
+@ExtensionNaming(namespace="fabric", name="rexconnect")
 public class RexConnectExtension extends AbstractRexsterExtension {
 
     private static Logger vLog;
@@ -45,10 +45,13 @@ public class RexConnectExtension extends AbstractRexsterExtension {
     	}
     	
     	vLog = Logger.getLogger(RexConnectExtension.class);
-		RexConnectServer.configureLog4j("extension", vLog, Level.WARN);
-		
+    	vLog.setLevel(Level.INFO);
+    	vLog.info("RexConnect extension ing...");
+    	
     	Properties props = RexConnectServer.buildRexConfig();
     	startGrizzlyServer(props);
+
+    	vLog.info("RexConnect extension started!");
     }
 
 	/*--------------------------------------------------------------------------------------------*/

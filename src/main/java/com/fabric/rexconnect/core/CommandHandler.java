@@ -107,7 +107,7 @@ public class CommandHandler {
 		c.execute();
 		
 		TcpResponseCommand respCmd = c.getResponse();
-		vLog.error("Session "+sessId+": Rollback with results="+
+		vLog.error("Session "+sessId+" failed: Rollback with results="+
 			respCmd.results+", err="+respCmd.err);
 		
 		////
@@ -118,7 +118,7 @@ public class CommandHandler {
 		c.execute();
 		
 		respCmd = c.getResponse();
-		vLog.error("Session "+sessId+": Close with results="+
+		vLog.error("Session "+sessId+" failed: Close with results="+
 			respCmd.results+", err="+respCmd.err);
 	}
     

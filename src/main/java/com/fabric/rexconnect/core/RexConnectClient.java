@@ -157,6 +157,11 @@ public class RexConnectClient {
 	/*--------------------------------------------------------------------------------------------*/
 	private <T> List<T> parseScriptResponse(ScriptResponseMessage pMsg) {
 		final List<T> results = new ArrayList<T>();
+		
+		if ( pMsg.Results == null ) {
+			return results;
+		}
+		
 		Object result = pMsg.Results.get();
 		
 		if ( result instanceof Iterable ) {
