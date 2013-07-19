@@ -94,10 +94,18 @@ public class CommandHandler {
 		}
 		
 		if ( !allowCommandExecution(pSessCtx, pReqCmd, pCmdRespMap) ) {
-			if ( debug ) { vLog.debug("//  SKIP CMD: "+pReqCmd.cmdId); }
+			if ( debug ) {
+				vLog.debug("//  SKIP CMD: "+pReqCmd.cmdId);
+			}
+			
 			TcpResponseCommand nonResp = new TcpResponseCommand();
-			nonResp.cmdId = pReqCmd.cmdId;
 			nonResp.timer = -1;
+			
+			if ( pReqCmd.cmdId != null ) {
+				nonResp.cmdId = pReqCmd.cmdId;
+				pCmdRespMap.put(pReqCmd.cmdId, nonResp);
+			}
+			
 			return nonResp;
 		}
 		
@@ -108,7 +116,9 @@ public class CommandHandler {
 		TcpResponseCommand respCmd = c.getResponse();
 		respCmd.cmdId = pReqCmd.cmdId;
 		
-		if ( debug ) { vLog.debug("//  JSON: "+pIndex+" | "+PrettyJson.getJson(respCmd, false)); }
+		if ( debug ) {
+			vLog.debug("//  JSON: "+pIndex+" | "+PrettyJson.getJson(respCmd, false));
+		}
 
 		if ( respCmd.err != null ) {
 			String errMsg = "Error for command '"+
@@ -146,7 +156,10 @@ public class CommandHandler {
 			TcpResponseCommand r = pCmdRespMap.get(condCmdId);
 			
 			if ( r.err != null ) {
-				if ( debug ) { vLog.debug("//  COND ERR: "+condCmdId+"=["+r.err+"]"); }
+				if ( debug ) {
+					vLog.debug("//  COND ERR: "+condCmdId+"=["+r.err+"]");
+				}
+				
 				return false;
 			}
 			
@@ -157,12 +170,23 @@ public class CommandHandler {
 				String str = (obj == null ? null : obj.toString().toLowerCase());
 				Boolean allow = (str != null && !str.isEmpty() && !str.equals("0") &&
 					!str.equals("false"));
-				if ( debug ) { vLog.debug("//  COND RESULT: "+condCmdId+"=["+str+"] ("+allow+")"); }
-				return allow;
+				
+				if ( debug ) {
+					vLog.debug("//  COND RESULT: "+condCmdId+"=["+str+"] ("+allow+")");
+				}
+				
+				if ( !allow ) {
+					return false;
+				}
 			}
 
-			if ( debug ) { vLog.debug("//  COND COUNT: "+condCmdId+"=["+s+"]"); }
-			return (s > 1);
+			if ( debug ) {
+				vLog.debug("//  COND COUNT: "+condCmdId+"=["+s+"]");
+			}
+			
+			if ( s == 0 ) {
+				return false;
+			}
 		}
 		
 		return true;
