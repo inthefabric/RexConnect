@@ -117,7 +117,7 @@ public class RexConnectServer {
 			"\"                --==##/  \n"+
 			"\"            ---===##/    \n"+
 			"\n"+
-			"RexConnect "+pTitle+" 0.3.4\n"+
+			"RexConnect "+pTitle+" 0.3.5\n"+
 			"\n"+
 			pProps+"\n"+
 			"\n"+
