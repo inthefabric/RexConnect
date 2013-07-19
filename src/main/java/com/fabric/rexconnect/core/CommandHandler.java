@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import com.fabric.rexconnect.core.commands.Command;
@@ -22,7 +23,16 @@ public class CommandHandler {
 
     private static final Logger vLog = Logger.getLogger(CommandHandler.class);
     private static final ObjectMapper vMapper = new ObjectMapper();
+    private static final Boolean vIsInit = Init();
     
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+	/*--------------------------------------------------------------------------------------------*/
+	private static Boolean Init() {
+		vLog.setLevel(Level.DEBUG);
+		return true;
+	}
+	
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
@@ -67,7 +77,9 @@ public class CommandHandler {
 	private static TcpResponseCommand executeRequestCommand(SessionContext pSessCtx,
 								TcpRequestCommand pReqCmd, int pIndex,
 								Map<String,TcpResponseCommand> pCmdRespMap) throws IOException {
-		if ( pSessCtx.getConfigDebugMode() ) {
+		Boolean debug = pSessCtx.getConfigDebugMode();
+		
+		if ( debug ) {
 			String cmdStr = pReqCmd.cmd;
 			
 			if ( pReqCmd.cmdId != null ) {
@@ -81,11 +93,8 @@ public class CommandHandler {
 			vLog.debug("//  CMD: "+pIndex+" | "+cmdStr);
 		}
 		
-		if ( !allowCommandExecution(pReqCmd, pCmdRespMap) ) {
-			if ( pSessCtx.getConfigDebugMode() ) {
-				vLog.debug("//  SKIP CMD: "+pReqCmd.cmdId);
-			}
-			
+		if ( !allowCommandExecution(pSessCtx, pReqCmd, pCmdRespMap) ) {
+			if ( debug ) { vLog.debug("//  SKIP CMD: "+pReqCmd.cmdId); }
 			TcpResponseCommand nonResp = new TcpResponseCommand();
 			nonResp.cmdId = pReqCmd.cmdId;
 			nonResp.timer = -1;
@@ -99,10 +108,7 @@ public class CommandHandler {
 		TcpResponseCommand respCmd = c.getResponse();
 		respCmd.cmdId = pReqCmd.cmdId;
 		
-		if ( pSessCtx.getConfigDebugMode() ) {
-			String json = PrettyJson.getJson(respCmd, false);
-			vLog.debug("//  JSON: "+pIndex+" | "+json);
-		}
+		if ( debug ) { vLog.debug("//  JSON: "+pIndex+" | "+PrettyJson.getJson(respCmd, false)); }
 
 		if ( respCmd.err != null ) {
 			String errMsg = "Error for command '"+
@@ -124,11 +130,13 @@ public class CommandHandler {
 	}
 
 	/*--------------------------------------------------------------------------------------------*/
-	private static Boolean allowCommandExecution(TcpRequestCommand pReqCmd,
+	private static Boolean allowCommandExecution(SessionContext pSessCtx, TcpRequestCommand pReqCmd,
 								Map<String,TcpResponseCommand> pCmdRespMap) throws IOException {
 		if ( pReqCmd.cond == null ) {
 			return true;
 		}
+		
+		Boolean debug = pSessCtx.getConfigDebugMode();
 		
 		for ( String condCmdId : pReqCmd.cond ) {
 			if ( !pCmdRespMap.containsKey(condCmdId) ) {
@@ -138,6 +146,7 @@ public class CommandHandler {
 			TcpResponseCommand r = pCmdRespMap.get(condCmdId);
 			
 			if ( r.err != null ) {
+				if ( debug ) { vLog.debug("//  COND ERR: "+condCmdId+"=["+r.err+"]"); }
 				return false;
 			}
 			
@@ -146,9 +155,13 @@ public class CommandHandler {
 			if ( s == 1 ) {
 				Object obj = r.results.get(0);
 				String str = (obj == null ? null : obj.toString().toLowerCase());
-				return (str != null && str != "0" && str != "" && str != "false");
+				Boolean allow = (str != null && !str.isEmpty() && !str.equals("0") &&
+					!str.equals("false"));
+				if ( debug ) { vLog.debug("//  COND RESULT: "+condCmdId+"=["+str+"] ("+allow+")"); }
+				return allow;
 			}
-			
+
+			if ( debug ) { vLog.debug("//  COND COUNT: "+condCmdId+"=["+s+"]"); }
 			return (s > 1);
 		}
 		
@@ -179,5 +192,5 @@ public class CommandHandler {
 		vLog.error("Session "+sessId+" failed: Close with results="+
 			respCmd.results+", err="+respCmd.err);
 	}
-    
+
 }
