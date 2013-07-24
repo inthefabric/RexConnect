@@ -18,6 +18,7 @@ import org.glassfish.grizzly.utils.StringFilter;
 
 import com.fabric.rexconnect.core.HeartbeatMonitor;
 import com.fabric.rexconnect.core.RequestFilter;
+import com.fabric.rexconnect.core.RexConnectClient;
 import com.fabric.rexconnect.core.SessionContext;
 import com.tinkerpop.rexster.client.RexProClientFilter;
 import com.tinkerpop.rexster.client.RexsterClientFactory;
@@ -43,12 +44,13 @@ public class RexConnectServer {
 			Logger.getLogger(RexProClientFilter.class).setLevel(Level.INFO);
 			
 			Properties props = buildRexConfig();
+			RexConnectClient.init(RexConfig);
 			vLog.info(getHeaderString("Server", props));
 			startGrizzlyServer(props);
 			
-			BaseConfiguration hbConfig = (BaseConfiguration)RexConnectServer.RexConfig.clone();
-			hbConfig.setProperty(RexsterClientTokens.CONFIG_TIMEOUT_READ_MS, 1000);
-			SessionContext sc = new SessionContext(hbConfig);
+			//BaseConfiguration hbConfig = (BaseConfiguration)RexConnectServer.RexConfig.clone();
+			//hbConfig.setProperty(RexsterClientTokens.CONFIG_TIMEOUT_READ_MS, 1000);
+			SessionContext sc = new SessionContext(); //hbConfig);
 			
 			HeartbeatMonitor hm = new HeartbeatMonitor(sc);
 			hm.start();

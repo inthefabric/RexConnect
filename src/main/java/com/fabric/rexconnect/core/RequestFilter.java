@@ -9,7 +9,6 @@ import org.glassfish.grizzly.filterchain.NextAction;
 
 import com.fabric.rexconnect.core.io.PrettyJson;
 import com.fabric.rexconnect.core.io.TcpResponse;
-import com.fabric.rexconnect.main.RexConnectServer;
 
 public class RequestFilter extends BaseFilter {
 
@@ -20,7 +19,7 @@ public class RequestFilter extends BaseFilter {
 	/*--------------------------------------------------------------------------------------------*/
     public NextAction handleRead(final FilterChainContext pFilterCtx) throws IOException {
 		final String reqJson = pFilterCtx.getMessage();
-		SessionContext sessCtx = new SessionContext(RexConnectServer.RexConfig);
+		SessionContext sessCtx = new SessionContext();
 		
 		TcpResponse resp = CommandHandler.getResponse(sessCtx, reqJson);
 		String respJson = PrettyJson.getJson(resp, sessCtx.getConfigPrettyMode());

@@ -27,31 +27,40 @@ public class RexConnectClient {
 
     private static final Logger vLog = Logger.getLogger(RexConnectClient.class);
     
+    private static RexsterClient vClient;
+	private static Configuration vConfig;
+    private static String vConfigLang;
+    private static String vConfigGraphName;
+    private static String vConfigGraphObjName;
+    
 	private SessionContext vSessCtx;
-	private RexsterClient vClient;
-	private Configuration vConfig;
-	
-    private final String vConfigLang;
-    private final String vConfigGraphName;
-    private final String vConfigGraphObjName;
-	
+
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
-	protected RexConnectClient(SessionContext pSessCtx, RexsterClient pClient,
-																		Configuration pConfig) {
-		vSessCtx = pSessCtx;
-		vClient = pClient;
+	public static void init(Configuration pConfig) throws Exception {
+		vClient = RexsterClientFactory.open(pConfig);
 		vConfig = pConfig;
-		
         vConfigLang = vConfig.getString(RexsterClientTokens.CONFIG_LANGUAGE);
         vConfigGraphName = vConfig.getString(RexsterClientTokens.CONFIG_GRAPH_NAME);
         vConfigGraphObjName = vConfig.getString(RexsterClientTokens.CONFIG_GRAPH_OBJECT_NAME);
 	}
 	
 	/*--------------------------------------------------------------------------------------------*/
-	public void closeConnections() throws RexProException, IOException {
-		vClient.closeClientAndConnections();
+	public static RexConnectClient create(SessionContext pSessCtx) {
+		return new RexConnectClient(pSessCtx);
+	}
+	
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////
+	/*--------------------------------------------------------------------------------------------*/
+	protected RexConnectClient(SessionContext pSessCtx) {
+		vSessCtx = pSessCtx;
+	}
+	
+	/*--------------------------------------------------------------------------------------------*/
+	public void closeClient() {
+		vSessCtx = null;
 	}
 	
 
@@ -190,15 +199,6 @@ public class RexConnectClient {
 		String text = pMsg.getClass().getName()+
 			(pMsg.hasSession() ? "; Session="+pMsg.sessionAsUUID() : "");
 		vSessCtx.logAndPrint("// "+pTitle+": "+text, vLog, Level.DEBUG);
-	}
-	
-	
-	////////////////////////////////////////////////////////////////////////////////////////////////
-	/*--------------------------------------------------------------------------------------------*/
-	public static RexConnectClient create(SessionContext pSessCtx, Configuration pConfig)
-																				throws Exception {
-		RexsterClient rc = RexsterClientFactory.open(pConfig);
-		return new RexConnectClient(pSessCtx, rc, pConfig);
 	}
 	
 }

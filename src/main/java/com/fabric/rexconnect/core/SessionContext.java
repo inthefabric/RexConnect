@@ -2,22 +2,13 @@ package com.fabric.rexconnect.core;
 
 import java.util.UUID;
 
-import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-
-import com.tinkerpop.blueprints.Graph;
-import com.tinkerpop.rexster.RexsterResourceContext;
 
 /*================================================================================================*/
 public class SessionContext {
 
-    private static final Logger vLog = Logger.getLogger(SessionContext.class);
-	
 	private UUID vSessId;
-	private final BaseConfiguration vRexsterClientConfig;
-	private final RexsterResourceContext vRexResCtx;
-	private final Graph vGraph;
 	private boolean vConsoleMode;
 	private boolean vPrettyMode;
 	private boolean vDebugMode;
@@ -26,19 +17,7 @@ public class SessionContext {
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
-	public SessionContext(final BaseConfiguration pRexsterClientConfig) {
-		vRexsterClientConfig = pRexsterClientConfig;
-		vRexResCtx = null;
-		vGraph = null;
-	}
-	
-	/*--------------------------------------------------------------------------------------------*/
-	public SessionContext(final BaseConfiguration pRexsterClientConfig, 
-			final RexsterResourceContext pRexResCtx, final Graph pGraph) {
-		vRexsterClientConfig = pRexsterClientConfig;
-		vRexResCtx = pRexResCtx;
-		vGraph = pGraph;
-	}
+	public SessionContext() {}
 
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -65,21 +44,9 @@ public class SessionContext {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
-	public RexsterResourceContext getRexsterResourceContext() {
-		return vRexResCtx;
-	}
-	
-	/*--------------------------------------------------------------------------------------------*/
-	public Graph getGraph() {
-		return vGraph;
-	}
-
-
-	////////////////////////////////////////////////////////////////////////////////////////////////
-	/*--------------------------------------------------------------------------------------------*/
 	public RexConnectClient getOrOpenClient() throws Exception {
 		if ( vPerRequestClient == null ) {
-			vPerRequestClient = RexConnectClient.create(this, vRexsterClientConfig);
+			vPerRequestClient = RexConnectClient.create(this);
 		}
 		
 		return vPerRequestClient;
@@ -87,18 +54,10 @@ public class SessionContext {
 	
 	/*--------------------------------------------------------------------------------------------*/
 	public void closeClientIfExists() {
-		if ( vPerRequestClient == null ) {
-			return;
+		if ( vPerRequestClient != null ) {
+			vPerRequestClient.closeClient();
+			vPerRequestClient = null;
 		}
-		
-		try {
-			vPerRequestClient.closeConnections();
-		}
-		catch ( Exception e ) {
-			logAndPrintErr("SessContext.Close Exception: "+e, vLog, Level.ERROR, e);
-		}
-		
-		vPerRequestClient = null;
 	}
 	
 
