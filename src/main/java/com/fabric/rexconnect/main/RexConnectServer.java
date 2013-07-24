@@ -99,7 +99,6 @@ public class RexConnectServer {
 			addProperty(RexsterClientTokens.CONFIG_LANGUAGE, "groovy");
 			addProperty(RexsterClientTokens.CONFIG_SERIALIZER, RexProMsgPack);
 			addProperty(RexsterClientTokens.CONFIG_GRAPH_OBJECT_NAME, "g");     
-			addProperty(RexsterClientTokens.CONFIG_TRANSACTION, true);
 			addProperty(RexsterClientTokens.CONFIG_MESSAGE_RETRY_WAIT_MS, 10);
 
 		}};

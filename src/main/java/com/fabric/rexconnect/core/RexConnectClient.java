@@ -34,7 +34,6 @@ public class RexConnectClient {
     private final String vConfigLang;
     private final String vConfigGraphName;
     private final String vConfigGraphObjName;
-    private final boolean vConfigTx;
 	
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -48,7 +47,6 @@ public class RexConnectClient {
         vConfigLang = vConfig.getString(RexsterClientTokens.CONFIG_LANGUAGE);
         vConfigGraphName = vConfig.getString(RexsterClientTokens.CONFIG_GRAPH_NAME);
         vConfigGraphObjName = vConfig.getString(RexsterClientTokens.CONFIG_GRAPH_OBJECT_NAME);
-        vConfigTx = vConfig.getBoolean(RexsterClientTokens.CONFIG_TRANSACTION);
 	}
 	
 	/*--------------------------------------------------------------------------------------------*/
@@ -124,11 +122,11 @@ public class RexConnectClient {
         srm.LanguageName = vConfigLang;
         srm.metaSetGraphName(vConfigGraphName);
         srm.metaSetGraphObjName(vConfigGraphObjName);
-        srm.metaSetTransaction(vConfigTx);
         srm.setRequestAsUUID(UUID.randomUUID());
 
 		Boolean s = vSessCtx.isSessionOpen();
 		srm.metaSetInSession(s);
+		srm.metaSetTransaction(!s);
 		srm.metaSetIsolate(!s);
 		
 		if ( s ) {
