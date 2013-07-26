@@ -1,6 +1,7 @@
 package com.fabric.rexconnect.core;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,12 +18,15 @@ import com.fabric.rexconnect.core.io.TcpRequest;
 import com.fabric.rexconnect.core.io.TcpRequestCommand;
 import com.fabric.rexconnect.core.io.TcpResponse;
 import com.fabric.rexconnect.core.io.TcpResponseCommand;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class CommandHandler {
 
     private static final Logger vLog = Logger.getLogger(CommandHandler.class);
     private static final ObjectMapper vMapper = new ObjectMapper();
+    private static final JsonFactory vFactory = vMapper.getFactory();
     private static final Boolean vIsInit = Init();
     
 
@@ -39,28 +43,40 @@ public class CommandHandler {
     public static TcpResponse getResponse(SessionContext pSessCtx, String pRequestJson)
     																			throws IOException {
     	long t = System.currentTimeMillis();
+    	TcpRequest req = vMapper.readValue(pRequestJson, TcpRequest.class);
+		return executeRequest(t, pSessCtx, req);
+	}
+    
+    /*--------------------------------------------------------------------------------------------*/
+    public static TcpResponse getResponse(long pStartTime, SessionContext pSessCtx,
+    												InputStream pRequestStream) throws IOException {
+		JsonParser jp = vFactory.createJsonParser(pRequestStream);
+		TcpRequest req = vMapper.readValue(jp, TcpRequest.class);
+		return executeRequest(pStartTime, pSessCtx, req);
+	}
+    
+    /*--------------------------------------------------------------------------------------------*/
+    private static TcpResponse executeRequest(long pStartTime, SessionContext pSessCtx,
+    														TcpRequest pReq) throws IOException {
 		TcpResponse resp = new TcpResponse();
 		
 		try {
-			TcpRequest req = vMapper.readValue(pRequestJson, TcpRequest.class);
-			
-			if ( req.sessId != null ) {
-				pSessCtx.openSession(UUID.fromString(req.sessId));
+			if ( pReq.sessId != null ) {
+				pSessCtx.openSession(UUID.fromString(pReq.sessId));
 			}
 			
-			resp.reqId = req.reqId;
-			int n = req.cmdList.size();
+			resp.reqId = pReq.reqId;
+			int n = pReq.cmdList.size();
 			Map<String,TcpResponseCommand> cmdRespMap = new HashMap<String,TcpResponseCommand>(n);
 			
 			for ( int i = 0 ; i < n ; ++i ) {
 				resp.cmdList.add(
-					executeRequestCommand(pSessCtx, req.cmdList.get(i), i, cmdRespMap)
+					executeRequestCommand(pSessCtx, pReq.cmdList.get(i), i, cmdRespMap)
 				);
 			}
 		}
 		catch ( Exception e ) {
-			vLog.error("Exception "+resp.reqId+":\n"+
-				" - Request: "+pRequestJson+"\n - Details: "+e, e);
+			vLog.error("Exception "+resp.reqId+": "+e.getMessage(), e);
 			
 			String msg = e.getMessage();
 			resp.err = (msg == null ? e.toString() : msg);
@@ -69,7 +85,7 @@ public class CommandHandler {
 		pSessCtx.closeClientIfExists();
 		
 		resp.sessId = (pSessCtx.isSessionOpen() ? pSessCtx.getSessionId().toString() : null);
-		resp.timer = System.currentTimeMillis()-t;
+		resp.timer = System.currentTimeMillis()-pStartTime;
 		return resp;
 	}
 	

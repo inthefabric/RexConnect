@@ -1,7 +1,11 @@
 package com.fabric.rexconnect.core.io;
 
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -14,31 +18,47 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /*================================================================================================*/
 public class PrettyJson implements PrettyPrinter {
 	
-	private static ObjectMapper vObjMapper;
-	private static JsonFactory vJsonFactory;
-	private static final String NewLine = System.getProperty("line.separator");
+	private static ObjectMapper vMapper = new ObjectMapper();
+	private static JsonFactory vFactory = vMapper.getFactory();
+	private static final String NewLine = init();
+	
 	private int vDepth;
 	
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
+	private static String init() {
+		vMapper.setSerializationInclusion(Include.NON_NULL);
+		return System.getProperty("line.separator");
+	}
+	
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+	/*--------------------------------------------------------------------------------------------*/
 	public static String getJson(Object pObj, boolean pPretty) throws IOException {
-		if ( vJsonFactory == null ) {
-			vJsonFactory = new JsonFactory();
-			
-			vObjMapper = new ObjectMapper();
-			vObjMapper.setSerializationInclusion(Include.NON_NULL);
-		}
-		
 		StringWriter sw = new StringWriter();
-		JsonGenerator jg = vJsonFactory.createJsonGenerator(sw);
+		JsonGenerator jg = vFactory.createJsonGenerator(sw);
 
 		if ( pPretty ) {
 			jg.setPrettyPrinter(new PrettyJson());
 		}
 
-		vObjMapper.writeValue(jg, pObj);
+		vMapper.writeValue(jg, pObj);
 		return sw.toString();
+	}
+	
+	/*--------------------------------------------------------------------------------------------*/
+	public static ByteArrayOutputStream getJsonStream(Object pObj, boolean pPretty)
+																				throws IOException {
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
+		JsonGenerator jg = vFactory.createJsonGenerator(os);
+
+		if ( pPretty ) {
+			jg.setPrettyPrinter(new PrettyJson());
+		}
+
+		vMapper.writeValue(jg, pObj);
+		return os;
 	}
 	
 	

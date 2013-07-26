@@ -21,6 +21,7 @@ import com.fabric.rexconnect.core.RexConnectClient;
 import com.fabric.rexconnect.core.SessionContext;
 import com.fabric.rexconnect.core.io.PrettyJson;
 import com.fabric.rexconnect.core.io.TcpResponse;
+import com.fabric.rexconnect.core.netty.NettyServer;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.rexster.RexsterResourceContext;
 import com.tinkerpop.rexster.extension.AbstractRexsterExtension;
@@ -51,7 +52,8 @@ public class RexConnectExtension extends AbstractRexsterExtension {
     	
     	Properties props = RexConnectServer.buildRexConfig();
     	RexConnectClient.init(RexConnectServer.RexConfig);
-    	startGrizzlyServer(props);
+    	//startGrizzlyServer(props);
+    	RexConnectServer.startNettyServer(props, vLog);
 
     	vLog.info("RexConnect extension started!");
     }
@@ -93,5 +95,5 @@ public class RexConnectExtension extends AbstractRexsterExtension {
 		
 		vLog.info("RexConnect TCP server started at port "+port+".");
     }
-	
+    
 }
