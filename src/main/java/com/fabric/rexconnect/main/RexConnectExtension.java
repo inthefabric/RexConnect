@@ -48,12 +48,12 @@ public class RexConnectExtension extends AbstractRexsterExtension {
     	
     	vLog = Logger.getLogger(RexConnectExtension.class);
     	vLog.setLevel(Level.INFO);
-    	vLog.info("RexConnect extension ing...");
+    	vLog.info("RexConnect extension starting...");
     	
     	Properties props = RexConnectServer.buildRexConfig();
     	RexConnectClient.init(RexConnectServer.RexConfig);
     	//startGrizzlyServer(props);
-    	RexConnectServer.startNettyServer(props, vLog);
+    	startNettyServer(props, vLog);
 
     	vLog.info("RexConnect extension started!");
     }
@@ -94,6 +94,14 @@ public class RexConnectExtension extends AbstractRexsterExtension {
 		trans.start();
 		
 		vLog.info("RexConnect TCP server started at port "+port+".");
+    }
+
+    /*--------------------------------------------------------------------------------------------*/
+    public static void startNettyServer(Properties pProps, Logger pLog) throws Exception {
+		int port = Integer.parseInt(pProps.getProperty("rexconnect_port"));
+		//int timeout = Integer.parseInt(pProps.getProperty("rexpro_timeout_ms"));
+		new Thread(new NettyServer(port)).start();
+		pLog.info("RexConnect Netty TCP server started at port "+port+".");
     }
     
 }

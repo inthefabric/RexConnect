@@ -1,14 +1,12 @@
 package com.fabric.rexconnect.core.netty;
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.string.StringEncoder;
+
+import java.io.ByteArrayOutputStream;
 
 import org.apache.log4j.Logger;
 
@@ -30,21 +28,39 @@ public class NettyRequestHandler extends ChannelInboundHandlerAdapter {
 		try {
 			long t = System.currentTimeMillis();
 			ByteBuf bb = (ByteBuf)pMsg;
-			SessionContext sessCtx = new SessionContext();
+			/*System.out.println("READ: "+bb.readableBytes());
 			
-			TcpResponse resp = CommandHandler.getResponse(t, sessCtx, new ByteBufInputStream(bb));
+			while ( !bb.isReadable(4) ) {}
+			int len = bb.readInt();
+			System.out.println("SIZE: "+len+" ... "+bb.readableBytes());
+			int fail = 10;
+			
+			while ( !bb.isReadable(len) ) {
+				System.out.println("READ: "+bb.readableBytes()+" / "+len);
+				if ( --fail <= 0 ) { break; }
+			}*/
+			
+			SessionContext sessCtx = new SessionContext();
+			ByteBufInputStream bbs = new ByteBufInputStream(bb);
+			/*StringWriter json = new StringWriter(); 
+			String jsonLine;
+			
+			while ( (jsonLine = bbs.readLine()) != null ) {
+				json.append(jsonLine);
+			}
+			
+			bbs.close();
+			System.out.println("LINE: "+jsonLine);
+			System.out.println("JSON: "+json.toString());*/
+			
+			TcpResponse resp = CommandHandler.getResponse(t, sessCtx, bbs);
 			ByteArrayOutputStream os = PrettyJson.getJsonStream(resp, false);
 			pCtx.writeAndFlush(Unpooled.copiedBuffer(os.toByteArray()));
+			pCtx.close();
 		}
 		catch ( Exception e ) {
 			vLog.error(e.getMessage(), e);
 		}
-	}
-	
-	/*--------------------------------------------------------------------------------------------* /
-	@Override
-	public void channelReadComplete(ChannelHandlerContext pCtx) {
-		
 	}
 
 	/*--------------------------------------------------------------------------------------------*/

@@ -8,23 +8,31 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.DelimiterBasedFrameDecoder;
+import io.netty.handler.codec.Delimiters;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 
-/*================================================================================================*/
-public class NettyServer {
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
+/*================================================================================================*/
+public class NettyServer implements Runnable {
+	
+	private static final Logger vLog = Logger.getLogger(NettyServer.class);
+	
 	private int vPort;
 
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
 	public NettyServer(int pPort) {
+		vLog.setLevel(Level.ALL);
 		vPort = pPort;
 	}
 
 	/*--------------------------------------------------------------------------------------------*/
-	public void run() throws Exception {
+	public void run() {
 		EventLoopGroup bossGroup = new NioEventLoopGroup();
 		EventLoopGroup workerGroup = new NioEventLoopGroup();
 		
@@ -32,7 +40,11 @@ public class NettyServer {
 			ChannelInitializer<SocketChannel> handler = new ChannelInitializer<SocketChannel>() {
 				@Override
 				public void initChannel(SocketChannel pChan) throws Exception {
-					pChan.pipeline().addLast(new NettyRequestHandler());
+					pChan.pipeline()
+						.addLast(new DelimiterBasedFrameDecoder(
+							Integer.MAX_VALUE/2, Delimiters.nulDelimiter())
+						)
+						.addLast(new NettyRequestHandler());
 				}
 			};
 			
@@ -45,6 +57,9 @@ public class NettyServer {
 
 			ChannelFuture f = b.bind(vPort).sync();
 			f.channel().closeFuture().sync();
+		}
+		catch ( Exception e ) {
+			vLog.fatal(e.getMessage(), e);
 		}
 		finally {
 			workerGroup.shutdownGracefully();

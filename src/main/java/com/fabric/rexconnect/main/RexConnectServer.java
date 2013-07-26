@@ -149,7 +149,7 @@ public class RexConnectServer {
     }
 
     /*--------------------------------------------------------------------------------------------*/
-    public static void startNettyServer(Properties pProps, Logger pLog) throws Exception {
+    private static void startNettyServer(Properties pProps, Logger pLog) throws Exception {
 		int port = Integer.parseInt(pProps.getProperty("rexconnect_port"));
 		//int timeout = Integer.parseInt(pProps.getProperty("rexpro_timeout_ms"));
 		new NettyServer(port).run();
