@@ -20,7 +20,6 @@ import com.fabric.rexconnect.core.HeartbeatMonitor;
 import com.fabric.rexconnect.core.RequestFilter;
 import com.fabric.rexconnect.core.RexConnectClient;
 import com.fabric.rexconnect.core.SessionContext;
-import com.fabric.rexconnect.core.netty.NettyServer;
 import com.tinkerpop.rexster.client.RexProClientFilter;
 import com.tinkerpop.rexster.client.RexsterClientFactory;
 import com.tinkerpop.rexster.client.RexsterClientTokens;
@@ -47,8 +46,7 @@ public class RexConnectServer {
 			Properties props = buildRexConfig();
 			RexConnectClient.init(RexConfig);
 			vLog.info(getHeaderString("Server", props));
-			//startGrizzlyServer(props);
-			startNettyServer(props, vLog);
+			startGrizzlyServer(props);
 			
 			//BaseConfiguration hbConfig = (BaseConfiguration)RexConnectServer.RexConfig.clone();
 			//hbConfig.setProperty(RexsterClientTokens.CONFIG_TIMEOUT_READ_MS, 1000);
@@ -146,14 +144,6 @@ public class RexConnectServer {
 		trans.start();
 		
 		vLog.info("Server started at port "+port+".");
-    }
-
-    /*--------------------------------------------------------------------------------------------*/
-    private static void startNettyServer(Properties pProps, Logger pLog) throws Exception {
-		int port = Integer.parseInt(pProps.getProperty("rexconnect_port"));
-		//int timeout = Integer.parseInt(pProps.getProperty("rexpro_timeout_ms"));
-		new NettyServer(port).run();
-		pLog.info("RexConnect Netty TCP server started at port "+port+".");
     }
     
 }

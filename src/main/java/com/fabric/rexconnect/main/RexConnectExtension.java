@@ -52,8 +52,7 @@ public class RexConnectExtension extends AbstractRexsterExtension {
     	
     	Properties props = RexConnectServer.buildRexConfig();
     	RexConnectClient.init(RexConnectServer.RexConfig);
-    	//startGrizzlyServer(props);
-    	startNettyServer(props, vLog);
+    	startGrizzlyServer(props);
 
     	vLog.info("RexConnect extension started!");
     }
