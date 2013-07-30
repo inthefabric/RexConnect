@@ -1,7 +1,7 @@
 # RexConnect
 
 RexConnect is Java application that provides access to a [Rexster](https://github.com/tinkerpop/rexster)-supported graph database. RexConnect adds a powerful, language-agnostic service layer upon Rexster's [RexPro](https://github.com/tinkerpop/rexster/wiki/RexPro) interface. It provides methods of data access: server and console. The server mode responds to incoming TCP requests; the console mode offers an interactive interface.
-- Current version: 0.3.6
+- Current version: 0.4.0
 - License: [Apache License, Version 2.0](https://github.com/inthefabric/RexConnect/blob/master/LICENSE.md)
 
 #### Current Use Cases

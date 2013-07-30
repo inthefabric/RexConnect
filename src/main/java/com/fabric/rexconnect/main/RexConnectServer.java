@@ -31,7 +31,9 @@ public class RexConnectServer {
     
     public static final byte RexProMsgPack = 0;
     public static final byte RexProJson = 1;
-
+    
+    public static final String RexConnVersion = "0.4.0";
+    
     public static BaseConfiguration RexConfig;
 	
     
@@ -118,7 +120,7 @@ public class RexConnectServer {
 			"\"                --==##/  \n"+
 			"\"            ---===##/    \n"+
 			"\n"+
-			"RexConnect "+pTitle+" 0.3.6\n"+
+			"RexConnect "+pTitle+" "+RexConnVersion+"\n"+
 			"\n"+
 			pProps+"\n"+
 			"\n"+

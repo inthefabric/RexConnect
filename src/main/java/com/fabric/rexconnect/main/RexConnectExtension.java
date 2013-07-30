@@ -47,7 +47,7 @@ public class RexConnectExtension extends AbstractRexsterExtension {
     	
     	vLog = Logger.getLogger(RexConnectExtension.class);
     	vLog.setLevel(Level.INFO);
-    	vLog.info("RexConnect extension starting...");
+    	vLog.info("RexConnect "+RexConnectServer.RexConnVersion+" extension starting...");
     	
     	Properties props = RexConnectServer.buildRexConfig();
     	RexConnectClient.init(RexConnectServer.RexConfig);
