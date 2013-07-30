@@ -21,7 +21,6 @@ import com.fabric.rexconnect.core.RexConnectClient;
 import com.fabric.rexconnect.core.SessionContext;
 import com.fabric.rexconnect.core.io.PrettyJson;
 import com.fabric.rexconnect.core.io.TcpResponse;
-import com.fabric.rexconnect.core.netty.NettyServer;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.rexster.RexsterResourceContext;
 import com.tinkerpop.rexster.extension.AbstractRexsterExtension;
@@ -93,14 +92,6 @@ public class RexConnectExtension extends AbstractRexsterExtension {
 		trans.start();
 		
 		vLog.info("RexConnect TCP server started at port "+port+".");
-    }
-
-    /*--------------------------------------------------------------------------------------------*/
-    public static void startNettyServer(Properties pProps, Logger pLog) throws Exception {
-		int port = Integer.parseInt(pProps.getProperty("rexconnect_port"));
-		//int timeout = Integer.parseInt(pProps.getProperty("rexpro_timeout_ms"));
-		new Thread(new NettyServer(port)).start();
-		pLog.info("RexConnect Netty TCP server started at port "+port+".");
     }
     
 }
