@@ -22,9 +22,9 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class CommandHandler {
+public class RequestExecutor {
 
-    private static final Logger vLog = Logger.getLogger(CommandHandler.class);
+    private static final Logger vLog = Logger.getLogger(RequestExecutor.class);
     private static final ObjectMapper vMapper = new ObjectMapper();
     private static final JsonFactory vFactory = vMapper.getFactory();
     private static final Boolean vIsInit = Init();
@@ -115,7 +115,7 @@ public class CommandHandler {
 			}
 			
 			TcpResponseCommand nonResp = new TcpResponseCommand();
-			nonResp.timer = -1;
+			nonResp.timer = (long)-1;
 			
 			if ( pReqCmd.cmdId != null ) {
 				nonResp.cmdId = pReqCmd.cmdId;

@@ -23,9 +23,9 @@ import com.tinkerpop.rexster.protocol.msg.SessionRequestMessage;
 import com.tinkerpop.rexster.protocol.msg.SessionResponseMessage;
 
 /*================================================================================================*/
-public class RexConnectClient {
+public class WrappedRexsterClient {
 
-    private static final Logger vLog = Logger.getLogger(RexConnectClient.class);
+    private static final Logger vLog = Logger.getLogger(WrappedRexsterClient.class);
     
     private static RexsterClient vClient;
 	private static Configuration vConfig;
@@ -47,14 +47,14 @@ public class RexConnectClient {
 	}
 	
 	/*--------------------------------------------------------------------------------------------*/
-	public static RexConnectClient create(SessionContext pSessCtx) {
-		return new RexConnectClient(pSessCtx);
+	public static WrappedRexsterClient create(SessionContext pSessCtx) {
+		return new WrappedRexsterClient(pSessCtx);
 	}
 	
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
-	protected RexConnectClient(SessionContext pSessCtx) {
+	protected WrappedRexsterClient(SessionContext pSessCtx) {
 		vSessCtx = pSessCtx;
 	}
 	

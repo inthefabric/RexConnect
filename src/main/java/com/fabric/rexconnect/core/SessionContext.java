@@ -12,7 +12,7 @@ public class SessionContext {
 	private boolean vConsoleMode;
 	private boolean vPrettyMode;
 	private boolean vDebugMode;
-	private RexConnectClient vPerRequestClient;
+	private WrappedRexsterClient vPerRequestClient;
 	
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,9 +44,9 @@ public class SessionContext {
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
-	public RexConnectClient getOrOpenClient() throws Exception {
+	public WrappedRexsterClient getOrOpenClient() throws Exception {
 		if ( vPerRequestClient == null ) {
-			vPerRequestClient = RexConnectClient.create(this);
+			vPerRequestClient = WrappedRexsterClient.create(this);
 		}
 		
 		return vPerRequestClient;

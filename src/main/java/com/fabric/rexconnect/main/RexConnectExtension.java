@@ -15,9 +15,9 @@ import org.glassfish.grizzly.nio.transport.TCPNIOTransport;
 import org.glassfish.grizzly.nio.transport.TCPNIOTransportBuilder;
 import org.glassfish.grizzly.utils.StringFilter;
 
-import com.fabric.rexconnect.core.CommandHandler;
+import com.fabric.rexconnect.core.RequestExecutor;
 import com.fabric.rexconnect.core.RequestFilter;
-import com.fabric.rexconnect.core.RexConnectClient;
+import com.fabric.rexconnect.core.WrappedRexsterClient;
 import com.fabric.rexconnect.core.SessionContext;
 import com.fabric.rexconnect.core.io.PrettyJson;
 import com.fabric.rexconnect.core.io.TcpResponse;
@@ -50,7 +50,7 @@ public class RexConnectExtension extends AbstractRexsterExtension {
     	vLog.info("RexConnect "+RexConnectServer.RexConnVersion+" extension starting...");
     	
     	Properties props = RexConnectServer.buildRexConfig();
-    	RexConnectClient.init(RexConnectServer.RexConfig);
+    	WrappedRexsterClient.init(RexConnectServer.RexConfig);
     	startGrizzlyServer(props);
 
     	vLog.info("RexConnect extension started!");
@@ -60,11 +60,10 @@ public class RexConnectExtension extends AbstractRexsterExtension {
 	@ExtensionDefinition(extensionPoint=ExtensionPoint.GRAPH)
 	public ExtensionResponse execute(@RexsterContext RexsterResourceContext pCtx,
 			@RexsterContext Graph pGraph, @ExtensionRequestParameter(name="req") String pReqJson) {
-		SessionContext sessCtx = new SessionContext();
 		
 		try {
-			TcpResponse resp = CommandHandler.getResponse(sessCtx, pReqJson);
-			String json = PrettyJson.getJson(resp, false);
+			RequestFilter rf = new RequestFilter();
+			String json = rf.executeRequest(pReqJson);
 			Response r = Response.ok(json, MediaType.APPLICATION_JSON).build();
 			return new ExtensionResponse(r);
 		}

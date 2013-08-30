@@ -18,17 +18,24 @@ public class RequestFilter extends BaseFilter {
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
     public NextAction handleRead(final FilterChainContext pFilterCtx) throws IOException {
-		final String reqJson = pFilterCtx.getMessage();
+		final String req = pFilterCtx.getMessage();
+		final String resp = executeRequest(req);
+		
+		pFilterCtx.write(pFilterCtx.getAddress(), resp, null);
+        return pFilterCtx.getStopAction();
+	}
+    
+    /*--------------------------------------------------------------------------------------------*/
+    public String executeRequest(final String pRequestJson) throws IOException {
 		SessionContext sessCtx = new SessionContext();
 		
-		TcpResponse resp = CommandHandler.getResponse(sessCtx, reqJson);
+		TcpResponse resp = RequestExecutor.getResponse(sessCtx, pRequestJson);
 		String respJson = PrettyJson.getJson(resp, sessCtx.getConfigPrettyMode());
-		pFilterCtx.write(pFilterCtx.getAddress(), respJson, null);
 		
 		vLog.info(
 			"Resp "+resp.reqId+"  --  "+
 			(resp.err == null ? "success" : "FAILURE")+
-			",  in "+reqJson.length()+
+			",  in "+pRequestJson.length()+
 			",  out "+respJson.length()+
 			",  cmd "+resp.cmdList.size()+
 			",  t "+resp.timer+"ms");
@@ -37,7 +44,7 @@ public class RequestFilter extends BaseFilter {
 			vLog.debug("Response "+resp.reqId+" JSON:\n"+respJson);
 		}
 		
-        return pFilterCtx.getStopAction();
+        return pRequestJson;
 	}
     
 }

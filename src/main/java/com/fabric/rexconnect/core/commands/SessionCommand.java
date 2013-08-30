@@ -3,7 +3,7 @@ package com.fabric.rexconnect.core.commands;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fabric.rexconnect.core.RexConnectClient;
+import com.fabric.rexconnect.core.WrappedRexsterClient;
 import com.fabric.rexconnect.core.SessionContext;
 
 /*================================================================================================*/
@@ -45,7 +45,7 @@ public class SessionCommand extends Command {
 	
 	/*--------------------------------------------------------------------------------------------*/
 	protected void executeInner() throws Exception {
-		RexConnectClient rcc = vSessCtx.getOrOpenClient();
+		WrappedRexsterClient rcc = vSessCtx.getOrOpenClient();
 		String action = vArgs.get(0);
 		
 		if ( action.equals(START) ) {

@@ -12,7 +12,7 @@ import jline.console.completer.StringsCompleter;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import com.fabric.rexconnect.core.RexConnectClient;
+import com.fabric.rexconnect.core.WrappedRexsterClient;
 import com.fabric.rexconnect.core.SessionContext;
 import com.fabric.rexconnect.core.commands.Command;
 import com.fabric.rexconnect.core.commands.CommandArgValidator;
@@ -36,7 +36,7 @@ public class RexConnectConsole {
 			RexConnectServer.configureLog4j("console", vLog, Level.ERROR);
 			
 			Properties props = RexConnectServer.buildRexConfig();
-			RexConnectClient.init(RexConnectServer.RexConfig);
+			WrappedRexsterClient.init(RexConnectServer.RexConfig);
 			String header = RexConnectServer.getHeaderString("Console", props);
 			System.out.println(header);
 			vLog.info(header);
