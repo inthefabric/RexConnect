@@ -32,7 +32,7 @@ public class RexConnectServer {
     public static final byte RexProMsgPack = 0;
     public static final byte RexProJson = 1;
     
-    public static final String RexConnVersion = "0.4.0";
+    public static final String RexConnVersion = "0.5.0-SNAPSHOT";
     
     public static BaseConfiguration RexConfig;
 	
