@@ -15,12 +15,8 @@ import org.glassfish.grizzly.nio.transport.TCPNIOTransport;
 import org.glassfish.grizzly.nio.transport.TCPNIOTransportBuilder;
 import org.glassfish.grizzly.utils.StringFilter;
 
-import com.fabric.rexconnect.core.RequestExecutor;
 import com.fabric.rexconnect.core.RequestFilter;
 import com.fabric.rexconnect.core.WrappedRexsterClient;
-import com.fabric.rexconnect.core.SessionContext;
-import com.fabric.rexconnect.core.io.PrettyJson;
-import com.fabric.rexconnect.core.io.TcpResponse;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.rexster.RexsterResourceContext;
 import com.tinkerpop.rexster.extension.AbstractRexsterExtension;

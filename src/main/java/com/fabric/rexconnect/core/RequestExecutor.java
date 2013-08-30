@@ -13,9 +13,7 @@ import org.apache.log4j.Logger;
 
 import com.fabric.rexconnect.core.commands.Command;
 import com.fabric.rexconnect.core.commands.SessionCommand;
-import com.fabric.rexconnect.core.io.PrettyJson;
 import com.fabric.rexconnect.core.io.TcpRequest;
-import com.fabric.rexconnect.core.io.TcpRequestCommand;
 import com.fabric.rexconnect.core.io.TcpResponse;
 import com.fabric.rexconnect.core.io.TcpResponseCommand;
 import com.fasterxml.jackson.core.JsonFactory;

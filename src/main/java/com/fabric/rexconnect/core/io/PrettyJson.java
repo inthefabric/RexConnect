@@ -1,11 +1,8 @@
 package com.fabric.rexconnect.core.io;
 
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
