@@ -46,6 +46,8 @@ public class CommandExecutor {
 		TcpResponseCommand respCmd = c.getResponse();
 		respCmd.cmdId = pReqCmd.cmdId;
 		
+		transformWithOptions(pReqCmd, respCmd);
+		
 		if ( debug ) {
 			vLog.debug("//  JSON: "+pIndex+" | "+PrettyJson.getJson(respCmd, false));
 		}
@@ -149,6 +151,17 @@ public class CommandExecutor {
 		}
 		
 		return rc;
+	}
+
+	/*--------------------------------------------------------------------------------------------*/
+	private static void transformWithOptions(TcpRequestCommand pReq, TcpResponseCommand pResp) {
+		if ( pReq.isOptionEnabled(TcpRequestCommand.Option.OMIT_TIMER) ) {
+			pResp.timer = null;
+		}
+		
+		if ( pReq.isOptionEnabled(TcpRequestCommand.Option.OMIT_RESULTS) ) {
+			pResp.results = null;
+		}
 	}
 
 }

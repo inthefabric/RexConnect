@@ -90,7 +90,15 @@ public class RequestExecutor {
 		
 		resp.sessId = (pSessCtx.isSessionOpen() ? pSessCtx.getSessionId().toString() : null);
 		resp.timer = System.currentTimeMillis()-pStartTime;
+		transformWithOptions(pReq, resp);
 		return resp;
+	}
+
+	/*--------------------------------------------------------------------------------------------*/
+	private static void transformWithOptions(TcpRequest pReq, TcpResponse pResp) {
+		if ( pReq.isOptionEnabled(TcpRequest.Option.OMIT_TIMER) ) {
+			pResp.timer = null;
+		}
 	}
 	
 	/*--------------------------------------------------------------------------------------------*/

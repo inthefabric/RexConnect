@@ -12,8 +12,8 @@ import jline.console.completer.StringsCompleter;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import com.fabric.rexconnect.core.WrappedRexsterClient;
 import com.fabric.rexconnect.core.SessionContext;
+import com.fabric.rexconnect.core.WrappedRexsterClient;
 import com.fabric.rexconnect.core.commands.Command;
 import com.fabric.rexconnect.core.commands.CommandArgValidator;
 import com.fabric.rexconnect.core.io.PrettyJson;
@@ -43,6 +43,7 @@ public class RexConnectConsole {
 			
 			vSessCtx = new SessionContext();
 			vSessCtx.setConsoleMode(true);
+			//executeOptionsTest();
 			
 			vReader = new ConsoleReader();
 
@@ -118,5 +119,56 @@ public class RexConnectConsole {
 	private static String readLine(String pPrompt) throws IOException {
 		return vReader.readLine(pPrompt).trim();
 	}
+
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+	/*--------------------------------------------------------------------------------------------* /
+	private static void executeOptionsTest() throws IOException {
+		TcpRequest r = new TcpRequest();
+		r.reqId = "test";
+		r.opt = 1;
+		r.cmdList = new ArrayList<TcpRequestCommand>();
+		
+		TcpRequestCommand c = new TcpRequestCommand();
+		c.cmdId = "first";
+		c.opt = 0;
+		c.cmd = "query";
+		c.args = new ArrayList<String>();
+		c.args.add("g");
+		r.cmdList.add(c);
+		
+		c = new TcpRequestCommand();
+		c.opt = 1;
+		c.cmd = "query";
+		c.args = new ArrayList<String>();
+		c.args.add("g");
+		r.cmdList.add(c);
+
+		c = new TcpRequestCommand();
+		c.opt = 2;
+		c.cmd = "query";
+		c.args = new ArrayList<String>();
+		c.args.add("g");
+		r.cmdList.add(c);
+
+		c = new TcpRequestCommand();
+		c.opt = 3;
+		c.cmd = "query";
+		c.args = new ArrayList<String>();
+		c.args.add("g");
+		r.cmdList.add(c);
+
+		c = new TcpRequestCommand();
+		c.cmdId = "id";
+		c.opt = 3;
+		c.cmd = "query";
+		c.args = new ArrayList<String>();
+		c.args.add("g");
+		r.cmdList.add(c);
+		
+		TcpResponse resp = RequestExecutor.getResponse(vSessCtx, PrettyJson.getJson(r, false));
+		String json = PrettyJson.getJson(resp, true);
+		System.out.println("JSON: "+json);
+	}*/
 
 }

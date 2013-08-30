@@ -7,12 +7,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /*================================================================================================*/
 public class TcpRequestCommand {
 	
-	public enum TcpRequestCommandOption {
+	public enum Option {
 		OMIT_TIMER(1),
 		OMIT_RESULTS(2);
 		
 		public int value;
-		private TcpRequestCommandOption(int pValue) { value = pValue; }
+		private Option(int pValue) { value = pValue; }
 	};
 	
 	@JsonProperty("i")
@@ -33,7 +33,7 @@ public class TcpRequestCommand {
 	
 	////////////////////////////////////////////////////////////////////////////////////////////////
 	/*--------------------------------------------------------------------------------------------*/
-	public Boolean isOptionEnabled(TcpRequestCommandOption pOption) {
+	public Boolean isOptionEnabled(Option pOption) {
 		return ((opt & pOption.value) != 0);
 	}
 	
