@@ -44,7 +44,7 @@ public class RequestFilter extends BaseFilter {
 			vLog.debug("Response "+resp.reqId+" JSON:\n"+respJson);
 		}
 		
-        return pRequestJson;
+        return respJson;
 	}
     
 }
