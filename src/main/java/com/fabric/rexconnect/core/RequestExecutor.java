@@ -55,6 +55,8 @@ public class RequestExecutor {
 		return executeRequest(pStartTime, pSessCtx, req);
 	}
     
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
     /*--------------------------------------------------------------------------------------------*/
     private static TcpResponse executeRequest(long pStartTime, SessionContext pSessCtx,
     														TcpRequest pReq) throws IOException {
@@ -71,12 +73,16 @@ public class RequestExecutor {
 			
 			for ( int i = 0 ; i < n ; ++i ) {
 				resp.cmdList.add(
-					executeRequestCommand(pSessCtx, pReq.cmdList.get(i), i, cmdRespMap)
+					CommandExecutor.execute(pSessCtx, pReq.cmdList.get(i), i, cmdRespMap)
 				);
 			}
 		}
 		catch ( Exception e ) {
 			vLog.error("Exception "+resp.reqId+": "+e.getMessage(), e);
+
+			if ( pSessCtx.isSessionOpen() ) {
+				cleanupFailedSession(pSessCtx);
+			}
 			
 			String msg = e.getMessage();
 			resp.err = (msg == null ? e.toString() : msg);
@@ -87,125 +93,6 @@ public class RequestExecutor {
 		resp.sessId = (pSessCtx.isSessionOpen() ? pSessCtx.getSessionId().toString() : null);
 		resp.timer = System.currentTimeMillis()-pStartTime;
 		return resp;
-	}
-	
-	/*--------------------------------------------------------------------------------------------*/
-	private static TcpResponseCommand executeRequestCommand(SessionContext pSessCtx,
-								TcpRequestCommand pReqCmd, int pIndex,
-								Map<String,TcpResponseCommand> pCmdRespMap) throws IOException {
-		Boolean debug = pSessCtx.getConfigDebugMode();
-		
-		if ( debug ) {
-			String cmdStr = pReqCmd.cmd;
-			
-			if ( pReqCmd.cmdId != null ) {
-				cmdStr = pReqCmd.cmdId+" | "+cmdStr;
-			}
-			
-			for ( String arg : pReqCmd.args ) {
-				cmdStr += " | "+arg;
-			}
-			
-			vLog.debug("//  CMD: "+pIndex+" | "+cmdStr);
-		}
-		
-		if ( !allowCommandExecution(pSessCtx, pReqCmd, pCmdRespMap) ) {
-			if ( debug ) {
-				vLog.debug("//  SKIP CMD: "+pReqCmd.cmdId);
-			}
-			
-			TcpResponseCommand nonResp = new TcpResponseCommand();
-			nonResp.timer = (long)-1;
-			
-			if ( pReqCmd.cmdId != null ) {
-				nonResp.cmdId = pReqCmd.cmdId;
-				pCmdRespMap.put(pReqCmd.cmdId, nonResp);
-			}
-			
-			return nonResp;
-		}
-		
-		////
-		
-		Command c = Command.build(pSessCtx, pReqCmd.cmd, pReqCmd.args);
-		c.execute();
-		TcpResponseCommand respCmd = c.getResponse();
-		respCmd.cmdId = pReqCmd.cmdId;
-		
-		if ( debug ) {
-			vLog.debug("//  JSON: "+pIndex+" | "+PrettyJson.getJson(respCmd, false));
-		}
-
-		if ( respCmd.err != null ) {
-			String errMsg = "Error for command '"+
-				pReqCmd.cmd+"' at index "+pIndex+": "+respCmd.err;
-			vLog.error(errMsg);
-			
-			if ( pSessCtx.isSessionOpen() ) {
-				cleanupFailedSession(pSessCtx);
-			}
-			
-			throw new IOException(errMsg);
-		}
-
-		if ( pReqCmd.cmdId != null ) {
-			pCmdRespMap.put(pReqCmd.cmdId, respCmd);
-		}
-		
-		return respCmd;
-	}
-
-	/*--------------------------------------------------------------------------------------------*/
-	private static Boolean allowCommandExecution(SessionContext pSessCtx, TcpRequestCommand pReqCmd,
-								Map<String,TcpResponseCommand> pCmdRespMap) throws IOException {
-		if ( pReqCmd.cond == null ) {
-			return true;
-		}
-		
-		Boolean debug = pSessCtx.getConfigDebugMode();
-		
-		for ( String condCmdId : pReqCmd.cond ) {
-			if ( !pCmdRespMap.containsKey(condCmdId) ) {
-				throw new IOException("Unknown conditional command ID: "+condCmdId);
-			}
-			
-			TcpResponseCommand r = pCmdRespMap.get(condCmdId);
-			
-			if ( r.err != null ) {
-				if ( debug ) {
-					vLog.debug("//  COND ERR: "+condCmdId+"=["+r.err+"]");
-				}
-				
-				return false;
-			}
-			
-			int s = (r.results == null ? 0 : r.results.size());
-			
-			if ( s == 1 ) {
-				Object obj = r.results.get(0);
-				String str = (obj == null ? null : obj.toString().toLowerCase());
-				Boolean allow = (str != null && !str.isEmpty() && !str.equals("0") &&
-					!str.equals("false"));
-				
-				if ( debug ) {
-					vLog.debug("//  COND RESULT: "+condCmdId+"=["+str+"] ("+allow+")");
-				}
-				
-				if ( !allow ) {
-					return false;
-				}
-			}
-
-			if ( debug ) {
-				vLog.debug("//  COND COUNT: "+condCmdId+"=["+s+"]");
-			}
-			
-			if ( s == 0 ) {
-				return false;
-			}
-		}
-		
-		return true;
 	}
 	
 	/*--------------------------------------------------------------------------------------------*/
