@@ -11,7 +11,7 @@ public class TcpResponseCommand {
 	public String cmdId;
 
 	@JsonProperty("t")
-	public long timer;
+	public Long timer;
 
 	@JsonProperty("r")
 	public List<Object> results;

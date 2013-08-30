@@ -18,7 +18,7 @@ public class TcpResponse {
 	public String sessId;
 	
 	@JsonProperty("t")
-	public long timer;
+	public Long timer;
 	
 	@JsonProperty("e")
 	public String err;
