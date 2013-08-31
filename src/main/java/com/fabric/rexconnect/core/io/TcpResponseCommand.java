@@ -18,5 +18,8 @@ public class TcpResponseCommand {
 
 	@JsonProperty("e")
 	public String err;
+
+	@JsonProperty("k")
+	public Integer cacheKey;
 	
 }

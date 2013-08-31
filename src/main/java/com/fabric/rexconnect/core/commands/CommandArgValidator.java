@@ -62,9 +62,9 @@ public class CommandArgValidator {
 	/*--------------------------------------------------------------------------------------------*/
 	public void validateArgs(String pCommand, List<String> pArgs) throws IllegalArgumentException {
 		String arg = (pArgs.size() > vIndex ? pArgs.get(vIndex) : null); 
-		String t = null;
+		Class<?> t = null;
 		
-		if ( arg == null ) {
+		if ( arg == null || arg.isEmpty() ) {
 			if ( !vRequired ) {
 				return;
 			}
@@ -75,18 +75,18 @@ public class CommandArgValidator {
 		try {
 			switch ( vType ) {
 				case IntType:
-					t = Integer.class.getName();
+					t = Integer.class;
 					Integer.parseInt(arg);
 					break;
 					
 				case LongType:
-					t = Long.class.getName();
+					t = Long.class;
 					Long.parseLong(arg);
 					break;
 			}
 		}
 		catch ( NumberFormatException e ) {
-			throwEx(pCommand, "Incorrect argument type, expected type '"+t+"'.", arg);
+			throwEx(pCommand, "Incorrect argument type, expected type '"+t.getName()+"'.", arg);
 		}
 		
 		validateAcceptStrings(pCommand, arg);
