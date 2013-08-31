@@ -19,6 +19,11 @@ public abstract class Command {
 	public static final String QUERYC = "queryc";
 	public static final String CONFIG = "config";
 	
+	public static final String SESSION_SHORT = "s";
+	public static final String QUERY_SHORT = "q";
+	public static final String QUERYC_SHORT = "k";
+	public static final String CONFIG_SHORT = "c";
+	
 	public static final String[] AllCommands = new String[] {
 		SESSION,
 		QUERY,
@@ -94,19 +99,19 @@ public abstract class Command {
 	/*--------------------------------------------------------------------------------------------*/
 	public static Command build(SessionContext pSessCtx, String pCommand, List<String> pArgs)
 																throws IllegalArgumentException {
-		if ( pCommand.equals(SESSION) ) {
+		if ( isSessionCommand(pCommand) ) {
 			return new SessionCommand(pSessCtx, pArgs);
 		}
 
-		if ( pCommand.equals(QUERY) ) {
+		if ( isQueryCommand(pCommand) ) {
 			return new QueryCommand(pSessCtx, pArgs);
 		}
 
-		if ( pCommand.equals(QUERYC) ) {
+		if ( isQuerycCommand(pCommand) ) {
 			return new QuerycCommand(pSessCtx, pArgs);
 		}
 
-		if ( pCommand.equals(CONFIG) ) {
+		if ( isConfigCommand(pCommand) ) {
 			return new ConfigCommand(pSessCtx, pArgs);
 		}
 		
@@ -117,19 +122,19 @@ public abstract class Command {
 	/*--------------------------------------------------------------------------------------------*/
 	public static List<CommandArgValidator> argumentValidators(String pCommand)
 																throws IllegalArgumentException {
-		if ( pCommand.equals(SESSION) ) {
+		if ( isSessionCommand(pCommand) ) {
 			return SessionCommand.Validators;
 		}
 
-		if ( pCommand.equals(QUERY) ) {
+		if ( isQueryCommand(pCommand) ) {
 			return QueryCommand.Validators;
 		}
 		
-		if ( pCommand.equals(QUERYC) ) {
+		if ( isQuerycCommand(pCommand) ) {
 			return QuerycCommand.Validators;
 		}
 
-		if ( pCommand.equals(CONFIG) ) {
+		if ( isConfigCommand(pCommand) ) {
 			return ConfigCommand.Validators;
 		}
 		
@@ -139,19 +144,41 @@ public abstract class Command {
 	
 	/*--------------------------------------------------------------------------------------------*/
 	public static List<String> availableArguments(String pCommand, int pArgIndex) {
-		if ( pCommand.equals(SESSION) ) {
+		if ( isSessionCommand(pCommand) ) {
 			switch ( pArgIndex ) {
 				case 0: return SessionCommand.Arg0s;
 			}
 		}
 
-		if ( pCommand.equals(CONFIG) ) {
+		if ( isConfigCommand(pCommand) ) {
 			switch ( pArgIndex ) {
 				case 0: return ConfigCommand.Arg0s;
 			}
 		}
 		
 		return new ArrayList<String>();
+	}
+	
+	
+	////////////////////////////////////////////////////////////////////////////////////////////////
+	/*--------------------------------------------------------------------------------------------*/
+	private static Boolean isSessionCommand(String pCommand) {
+		return (pCommand.equals(SESSION) || pCommand.equals(SESSION_SHORT));
+	}
+	
+	/*--------------------------------------------------------------------------------------------*/
+	private static Boolean isQueryCommand(String pCommand) {
+		return (pCommand.equals(QUERY) || pCommand.equals(QUERY_SHORT));
+	}
+	
+	/*--------------------------------------------------------------------------------------------*/
+	private static Boolean isQuerycCommand(String pCommand) {
+		return (pCommand.equals(QUERYC) || pCommand.equals(QUERYC_SHORT));
+	}
+	
+	/*--------------------------------------------------------------------------------------------*/
+	private static Boolean isConfigCommand(String pCommand) {
+		return (pCommand.equals(CONFIG) || pCommand.equals(CONFIG_SHORT));
 	}
 	
 }
