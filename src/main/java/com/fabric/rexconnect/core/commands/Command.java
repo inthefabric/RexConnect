@@ -16,11 +16,13 @@ public abstract class Command {
     
 	public static final String SESSION = "session";
 	public static final String QUERY = "query";
+	public static final String QUERYC = "queryc";
 	public static final String CONFIG = "config";
 	
 	public static final String[] AllCommands = new String[] {
 		SESSION,
 		QUERY,
+		QUERYC,
 		CONFIG
 	};
 	
@@ -100,6 +102,10 @@ public abstract class Command {
 			return new QueryCommand(pSessCtx, pArgs);
 		}
 
+		if ( pCommand.equals(QUERYC) ) {
+			return new QuerycCommand(pSessCtx, pArgs);
+		}
+
 		if ( pCommand.equals(CONFIG) ) {
 			return new ConfigCommand(pSessCtx, pArgs);
 		}
@@ -117,6 +123,10 @@ public abstract class Command {
 
 		if ( pCommand.equals(QUERY) ) {
 			return QueryCommand.Validators;
+		}
+		
+		if ( pCommand.equals(QUERYC) ) {
+			return QuerycCommand.Validators;
 		}
 
 		if ( pCommand.equals(CONFIG) ) {
