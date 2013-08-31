@@ -70,7 +70,8 @@ public class QueryCommand extends Command {
 			return;
 		}
 		
-		vCacheScript = vArgs.get(2).equals("1");
+		String c = vArgs.get(2);
+		vCacheScript = (c != null && c.equals("1"));
 	}
 
 	/*--------------------------------------------------------------------------------------------*/
